@@ -1,0 +1,15 @@
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.csprojResolveAssemblyReference.cache
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.CompPack.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.Desc.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\PresentationControls.PopupComboBox.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.Library.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.Options.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.Properties.Resources.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.NPSBrowser.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.SyncDB.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.GamePatches.resources
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS.csproj.GenerateResource.Cache
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\bin\Debug\NPS_Browser.exe
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\bin\Debug\NPS_Browser.pdb
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS_Browser.exe
+D:\PROJECTS\npsbrowser\nps_browser-master\NPS\obj\Debug\NPS_Browser.pdb

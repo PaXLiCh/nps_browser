@@ -13,13 +13,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace NPS
 {
     public partial class Library : Form
     {
 
         List<Item> db;
-
+        List<string> file_list = new List<string>();
         public Library(List<Item> db)
         {
             InitializeComponent();
@@ -29,6 +30,7 @@ namespace NPS
         private void Library_Load(object sender, EventArgs e)
         {
             listView1.Items.Clear();
+            listView2.Items.Clear();
 
             label1.Text = Settings.Instance.downloadDir;
 
@@ -282,6 +284,46 @@ namespace NPS
         private void button4_Click(object sender, EventArgs e)
         {
             Library_Load(null, null);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (listView1.SelectedItems.Count == 0) return;
+            string path = (listView1.SelectedItems[0].Tag as LibraryItem).path;
+            //System.Diagnostics.Process.Start("explorer.exe", "/select, " + path);
+
+
+
+
+            // List<string>  file_list = new List<string>();
+            
+            /*
+            foreach (string file_name in Directory.GetFiles(path)){ 
+
+                file_list.Add(file_name);
+            } 
+            foreach (string file_name in Directory.GetDirectories(path))
+            {
+                file_list.Add(file_name);
+            }*/
+            file_list.Add(path);
+           listView2.Items.Add(listView1.SelectedItems[0].Text);
+            Clipboard.SetData(DataFormats.FileDrop, file_list.ToArray());
+
+
+
+        }
+
+        private void listView2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            listView2.Items.Clear();
+            Clipboard.Clear();
+            
         }
     }
 

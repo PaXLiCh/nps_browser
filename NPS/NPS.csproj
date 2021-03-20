@@ -119,6 +119,11 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\ListViewItemComparer.cs" />
+    <Compile Include="Helpers\TextTemplate1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TextTemplate1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Library.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,6 +208,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Helpers\TextTemplate1.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TextTemplate1.cs</LastGenOutput>
+    </Content>
     <Content Include="images\8-512.ico" />
     <None Include="Resources\opened-folder.png" />
     <None Include="images\menu-resume.png" />
