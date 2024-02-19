@@ -40,7 +40,7 @@ namespace NPS
                 string updateUrl = GetUpdateLink(title.TitleId);
 
                 WebClient wc = new WebClient();
-                wc.Encoding = System.Text.Encoding.UTF8;
+                wc.Encoding = Encoding.UTF8;
                 string content = wc.DownloadString(updateUrl);
 
                 string ver = "";

@@ -160,28 +160,28 @@ namespace NPS
                     relDir = "Pkg\\PSV\\THEME";
                     break;
                 case EPkgType.PKG_TYPE_PSP:
-                    relDir = String.Format("PSP\\{0}\\PKG", currentDownload.TitleId);
+                    relDir = string.Format("PSP\\{0}\\PKG", currentDownload.TitleId);
                     break;
                 case EPkgType.PKG_TYPE_PSP_DLC:
-                    relDir = String.Format("PSP\\{0}\\PKG\\DLC", currentDownload.TitleId);
+                    relDir = string.Format("PSP\\{0}\\PKG\\DLC", currentDownload.TitleId);
                     break;
                 case EPkgType.PKG_TYPE_PSP_UPDATE:
-                    relDir = String.Format( "PSP\\{0}\\PKG\\UPDATE", currentDownload.TitleId);
+                    relDir = string.Format( "PSP\\{0}\\PKG\\UPDATE", currentDownload.TitleId);
                     break;
                 case EPkgType.PKG_TYPE_PSP_THEME:
                     relDir = "PSP\\THEME\\PKG";
                     break;
                 case EPkgType.PKG_TYPE_PSX:
-                    relDir = String.Format( "PSX\\{0}\\PKG", currentDownload.TitleId );
+                    relDir = string.Format( "PSX\\{0}\\PKG", currentDownload.TitleId );
                     break;
                 case EPkgType.PKG_TYPE_PS3_GAME:
-                    relDir = String.Format( "PS3\\{0}\\packages", currentDownload.TitleId );
+                    relDir = string.Format( "PS3\\{0}\\packages", currentDownload.TitleId );
                     break;
                 case EPkgType.PKG_TYPE_PS3_DLC:
-                    relDir = String.Format( "PS3\\{0}\\packages", currentDownload.TitleId );
+                    relDir = string.Format( "PS3\\{0}\\packages", currentDownload.TitleId );
                     break;
                 case EPkgType.PKG_TYPE_PS3_DEMO:
-                    relDir = String.Format( "PS3\\DEMO\\{0}\\packages", currentDownload.TitleId );
+                    relDir = string.Format( "PS3\\DEMO\\{0}\\packages", currentDownload.TitleId );
                     break;
                 case EPkgType.PKG_TYPE_PS3_THEME:
                     relDir = "PS3\\THEME\\PKG";
@@ -315,7 +315,7 @@ namespace NPS
             {
                 lvi.SubItems[2].Text = "Unpacking";
 
-                String tempName = "";
+                string tempName = "";
                 string dlc = "";
                 if (currentDownload.IsDLC == true)
                 {
@@ -324,9 +324,9 @@ namespace NPS
                 }
                 else tempName = currentDownload.TitleName;
 
-                String fwVersion = "3.60";
+                string fwVersion = "3.60";
                 if (tempName.Contains("3.61") /*currentDownload.TitleName.Contains("3.61")*/) fwVersion = "3.61";
-                String[] tempStr = tempName.Split();
+                string[] tempStr = tempName.Split();
                 tempName = "";
 
                 foreach (var i in tempStr)
@@ -389,7 +389,7 @@ namespace NPS
 
 
 
-                    using (var archive = System.IO.Compression.ZipFile.OpenRead(pkgOutputPath))
+                    using (var archive = ZipFile.OpenRead(pkgOutputPath))
                     {
                         foreach (var entry in archive.Entries)
                         {
@@ -546,7 +546,7 @@ namespace NPS
                 iBufferSize *= 1000;
                 long iExistLen = 0;
 
-                if (System.IO.File.Exists(sDestinationPath))
+                if (File.Exists(sDestinationPath))
                 {
                     System.IO.FileInfo fINfo =
                        new System.IO.FileInfo(sDestinationPath);
@@ -555,17 +555,17 @@ namespace NPS
                 ;
                 if (iExistLen > 0)
                     saveFileStream = new System.IO.FileStream(sDestinationPath,
-                      System.IO.FileMode.Append, System.IO.FileAccess.Write,
-                      System.IO.FileShare.ReadWrite);
+                      FileMode.Append, FileAccess.Write,
+                      FileShare.ReadWrite);
                 else
                     saveFileStream = new System.IO.FileStream(sDestinationPath,
-                      System.IO.FileMode.Create, System.IO.FileAccess.Write,
-                      System.IO.FileShare.ReadWrite);
+                      FileMode.Create, FileAccess.Write,
+                      FileShare.ReadWrite);
 
                 HttpWebRequest hwRq;
                 System.Net.HttpWebResponse hwRes;
                 var urr = new Uri(sSourceURL);
-                hwRq = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(urr);
+                hwRq = (System.Net.HttpWebRequest)WebRequest.Create(urr);
                 hwRq.Proxy = Settings.Instance.proxy;
                 hwRes = (System.Net.HttpWebResponse)hwRq.GetResponse();
                 hwRes.Close();
@@ -574,7 +574,7 @@ namespace NPS
                 totalSize = totalLength;
                 if (totalLength != iExistLen)
                 {
-                    hwRq = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(urr);
+                    hwRq = (System.Net.HttpWebRequest)WebRequest.Create(urr);
                     hwRq.Proxy = Settings.Instance.proxy;
                     hwRq.AddRange(iExistLen);
 

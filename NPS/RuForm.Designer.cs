@@ -95,13 +95,13 @@ namespace NPS
             this.lb_ps3licenseType = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.ResumeAll = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.PauseAll = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnDownloadResumeAll = new System.Windows.Forms.Button();
+            this.btnOpenDirectory = new System.Windows.Forms.Button();
+            this.btnDownloadPauseAll = new System.Windows.Forms.Button();
+            this.btnDownloadClear = new System.Windows.Forms.Button();
+            this.btnDownloadCancel = new System.Windows.Forms.Button();
+            this.btnDownloadPause = new System.Windows.Forms.Button();
+            this.btnDownloadResume = new System.Windows.Forms.Button();
             this.lstDownloadStatus = new ListViewEmbeddedControls.ListViewEx();
             this.colDownloadTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colDownloadSpeed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -158,7 +158,7 @@ namespace NPS
             // 
             this.optionsToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_options;
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -166,27 +166,27 @@ namespace NPS
             // 
             this.reloadToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_reload;
             this.reloadToolStripMenuItem.Name = "reloadToolStripMenuItem";
-            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.reloadToolStripMenuItem.Text = "Sync cache";
             this.reloadToolStripMenuItem.Click += new System.EventHandler(this.Sync);
             // 
             // ts_changeLog
             // 
             this.ts_changeLog.Name = "ts_changeLog";
-            this.ts_changeLog.Size = new System.Drawing.Size(133, 22);
+            this.ts_changeLog.Size = new System.Drawing.Size(180, 22);
             this.ts_changeLog.Text = "Changelog";
             this.ts_changeLog.Click += new System.EventHandler(this.ts_changeLog_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(130, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_exit;
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Tag = "Exit";
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
@@ -204,14 +204,14 @@ namespace NPS
             // downloadToolStripMenuItem
             // 
             this.downloadToolStripMenuItem.Name = "downloadToolStripMenuItem";
-            this.downloadToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.downloadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.downloadToolStripMenuItem.Text = "Download";
             this.downloadToolStripMenuItem.Click += new System.EventHandler(this.downloadUpdateToolStripMenuItem_Click);
             // 
             // changelogToolStripMenuItem
             // 
             this.changelogToolStripMenuItem.Name = "changelogToolStripMenuItem";
-            this.changelogToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.changelogToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.changelogToolStripMenuItem.Text = "Changelog";
             this.changelogToolStripMenuItem.Click += new System.EventHandler(this.changelogToolStripMenuItem_Click);
             // 
@@ -294,21 +294,21 @@ namespace NPS
             this.toggleDownloadedToolStripMenuItem,
             this.toolStripMenuItem1});
             this.lstTitlesMenuStrip.Name = "contextMenuStrip2";
-            this.lstTitlesMenuStrip.Size = new System.Drawing.Size(198, 180);
+            this.lstTitlesMenuStrip.Size = new System.Drawing.Size(207, 180);
             // 
             // downloadAndUnpackToolStripMenuItem
             // 
             this.downloadAndUnpackToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_unpack;
             this.downloadAndUnpackToolStripMenuItem.Name = "downloadAndUnpackToolStripMenuItem";
-            this.downloadAndUnpackToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.downloadAndUnpackToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.downloadAndUnpackToolStripMenuItem.Text = "Download and Unpack";
-            this.downloadAndUnpackToolStripMenuItem.Click += new System.EventHandler(this.btnDownload_Click);
+            this.downloadAndUnpackToolStripMenuItem.Click += new System.EventHandler(this.BtnDownloadClick);
             // 
             // showTitleDlcToolStripMenuItem
             // 
             this.showTitleDlcToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_show_dlc;
             this.showTitleDlcToolStripMenuItem.Name = "showTitleDlcToolStripMenuItem";
-            this.showTitleDlcToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.showTitleDlcToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.showTitleDlcToolStripMenuItem.Text = "Show Title DLCs";
             this.showTitleDlcToolStripMenuItem.Click += new System.EventHandler(this.showTitleDlcToolStripMenuItem_Click);
             // 
@@ -316,42 +316,42 @@ namespace NPS
             // 
             this.downloadAllDlcsToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_download_dlc;
             this.downloadAllDlcsToolStripMenuItem.Name = "downloadAllDlcsToolStripMenuItem";
-            this.downloadAllDlcsToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.downloadAllDlcsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.downloadAllDlcsToolStripMenuItem.Text = "Download All DLCs";
             this.downloadAllDlcsToolStripMenuItem.Click += new System.EventHandler(this.downloadAllDlcsToolStripMenuItem_Click);
             // 
             // downloadAllToolStripMenuItem
             // 
             this.downloadAllToolStripMenuItem.Name = "downloadAllToolStripMenuItem";
-            this.downloadAllToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.downloadAllToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.downloadAllToolStripMenuItem.Text = "Download All";
             this.downloadAllToolStripMenuItem.Click += new System.EventHandler(this.downloadAllToolStripMenuItem_Click);
             // 
             // downloadAllWithPatchesToolStripMenuItem
             // 
             this.downloadAllWithPatchesToolStripMenuItem.Name = "downloadAllWithPatchesToolStripMenuItem";
-            this.downloadAllWithPatchesToolStripMenuItem.Size = new System.Drawing.Size( 197, 22 );
+            this.downloadAllWithPatchesToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.downloadAllWithPatchesToolStripMenuItem.Text = "Download All w/ Patches";
-            this.downloadAllWithPatchesToolStripMenuItem.Click += new System.EventHandler( this.downloadAllWithPatchesToolStripMenuItem_Click );
+            this.downloadAllWithPatchesToolStripMenuItem.Click += new System.EventHandler(this.downloadAllWithPatchesToolStripMenuItem_Click);
             // 
             // checkForPatchesToolStripMenuItem
             // 
             this.checkForPatchesToolStripMenuItem.Name = "checkForPatchesToolStripMenuItem";
-            this.checkForPatchesToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.checkForPatchesToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.checkForPatchesToolStripMenuItem.Text = "Check for patches";
             this.checkForPatchesToolStripMenuItem.Click += new System.EventHandler(this.checkForPatchesToolStripMenuItem_Click);
             // 
             // toggleDownloadedToolStripMenuItem
             // 
             this.toggleDownloadedToolStripMenuItem.Name = "toggleDownloadedToolStripMenuItem";
-            this.toggleDownloadedToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.toggleDownloadedToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.toggleDownloadedToolStripMenuItem.Text = "Toggle Download Mark";
             this.toggleDownloadedToolStripMenuItem.Click += new System.EventHandler(this.toggleDownloadedToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(197, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(206, 22);
             this.toolStripMenuItem1.Text = "Download CompPack";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
@@ -377,7 +377,7 @@ namespace NPS
             this.btnDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnDownload.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnDownload.UseVisualStyleBackColor = true;
-            this.btnDownload.Click += new System.EventHandler(this.btnDownload_Click);
+            this.btnDownload.Click += new System.EventHandler(this.BtnDownloadClick);
             // 
             // rbnGames
             // 
@@ -772,13 +772,13 @@ namespace NPS
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.ResumeAll);
-            this.splitContainer1.Panel1.Controls.Add(this.button5);
-            this.splitContainer1.Panel1.Controls.Add(this.PauseAll);
-            this.splitContainer1.Panel1.Controls.Add(this.button4);
-            this.splitContainer1.Panel1.Controls.Add(this.button3);
-            this.splitContainer1.Panel1.Controls.Add(this.button2);
-            this.splitContainer1.Panel1.Controls.Add(this.button1);
+            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadResumeAll);
+            this.splitContainer1.Panel1.Controls.Add(this.btnOpenDirectory);
+            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadPauseAll);
+            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadClear);
+            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadCancel);
+            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadPause);
+            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadResume);
             this.splitContainer1.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel1_Paint);
             // 
             // splitContainer1.Panel2
@@ -788,84 +788,84 @@ namespace NPS
             this.splitContainer1.SplitterDistance = 33;
             this.splitContainer1.TabIndex = 15;
             // 
-            // ResumeAll
+            // btnDownloadResumeAll
             // 
-            this.ResumeAll.Image = global::NPS.Properties.Resources.menu_resume;
-            this.ResumeAll.Location = new System.Drawing.Point(225, 2);
-            this.ResumeAll.Margin = new System.Windows.Forms.Padding(0);
-            this.ResumeAll.Name = "ResumeAll";
-            this.ResumeAll.Size = new System.Drawing.Size(93, 28);
-            this.ResumeAll.TabIndex = 1;
-            this.ResumeAll.Text = "Resume All";
-            this.ResumeAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.ResumeAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.ResumeAll.UseVisualStyleBackColor = true;
-            this.ResumeAll.Click += new System.EventHandler(this.ResumeAllBtnClick);
+            this.btnDownloadResumeAll.Image = global::NPS.Properties.Resources.menu_resume;
+            this.btnDownloadResumeAll.Location = new System.Drawing.Point(225, 2);
+            this.btnDownloadResumeAll.Margin = new System.Windows.Forms.Padding(0);
+            this.btnDownloadResumeAll.Name = "btnDownloadResumeAll";
+            this.btnDownloadResumeAll.Size = new System.Drawing.Size(93, 28);
+            this.btnDownloadResumeAll.TabIndex = 1;
+            this.btnDownloadResumeAll.Text = "Resume All";
+            this.btnDownloadResumeAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnDownloadResumeAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnDownloadResumeAll.UseVisualStyleBackColor = true;
+            this.btnDownloadResumeAll.Click += new System.EventHandler(this.ResumeAllBtnClick);
             // 
-            // button5
+            // btnOpenDirectory
             // 
-            this.button5.Image = global::NPS.Properties.Resources.opened_folder;
-            this.button5.Location = new System.Drawing.Point(183, 2);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(39, 28);
-            this.button5.TabIndex = 4;
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.btnOpenDirectory.Image = global::NPS.Properties.Resources.opened_folder;
+            this.btnOpenDirectory.Location = new System.Drawing.Point(183, 2);
+            this.btnOpenDirectory.Name = "btnOpenDirectory";
+            this.btnOpenDirectory.Size = new System.Drawing.Size(39, 28);
+            this.btnOpenDirectory.TabIndex = 4;
+            this.btnOpenDirectory.UseVisualStyleBackColor = true;
+            this.btnOpenDirectory.Click += new System.EventHandler(this.BtnOpenDirectory);
             // 
-            // PauseAll
+            // btnDownloadPauseAll
             // 
-            this.PauseAll.Image = global::NPS.Properties.Resources.menu_pause;
-            this.PauseAll.Location = new System.Drawing.Point(324, 2);
-            this.PauseAll.Margin = new System.Windows.Forms.Padding(0);
-            this.PauseAll.Name = "PauseAll";
-            this.PauseAll.Size = new System.Drawing.Size(93, 28);
-            this.PauseAll.TabIndex = 0;
-            this.PauseAll.Text = "Pause All";
-            this.PauseAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.PauseAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.PauseAll.UseVisualStyleBackColor = true;
-            this.PauseAll.Click += new System.EventHandler(this.PauseAllBtnClick);
+            this.btnDownloadPauseAll.Image = global::NPS.Properties.Resources.menu_pause;
+            this.btnDownloadPauseAll.Location = new System.Drawing.Point(324, 2);
+            this.btnDownloadPauseAll.Margin = new System.Windows.Forms.Padding(0);
+            this.btnDownloadPauseAll.Name = "btnDownloadPauseAll";
+            this.btnDownloadPauseAll.Size = new System.Drawing.Size(93, 28);
+            this.btnDownloadPauseAll.TabIndex = 0;
+            this.btnDownloadPauseAll.Text = "Pause All";
+            this.btnDownloadPauseAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnDownloadPauseAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnDownloadPauseAll.UseVisualStyleBackColor = true;
+            this.btnDownloadPauseAll.Click += new System.EventHandler(this.PauseAllBtnClick);
             // 
-            // button4
+            // btnDownloadClear
             // 
-            this.button4.Image = global::NPS.Properties.Resources.menu_clear;
-            this.button4.Location = new System.Drawing.Point(138, 2);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(39, 28);
-            this.button4.TabIndex = 3;
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.clearCompletedToolStripMenuItem_Click);
+            this.btnDownloadClear.Image = global::NPS.Properties.Resources.menu_clear;
+            this.btnDownloadClear.Location = new System.Drawing.Point(138, 2);
+            this.btnDownloadClear.Name = "btnDownloadClear";
+            this.btnDownloadClear.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadClear.TabIndex = 3;
+            this.btnDownloadClear.UseVisualStyleBackColor = true;
+            this.btnDownloadClear.Click += new System.EventHandler(this.clearCompletedToolStripMenuItem_Click);
             // 
-            // button3
+            // btnDownloadCancel
             // 
-            this.button3.Image = global::NPS.Properties.Resources.menu_cancel;
-            this.button3.Location = new System.Drawing.Point(93, 2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(39, 28);
-            this.button3.TabIndex = 2;
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
+            this.btnDownloadCancel.Image = global::NPS.Properties.Resources.menu_cancel;
+            this.btnDownloadCancel.Location = new System.Drawing.Point(93, 2);
+            this.btnDownloadCancel.Name = "btnDownloadCancel";
+            this.btnDownloadCancel.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadCancel.TabIndex = 2;
+            this.btnDownloadCancel.UseVisualStyleBackColor = true;
+            this.btnDownloadCancel.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
             // 
-            // button2
+            // btnDownloadPause
             // 
-            this.button2.Image = global::NPS.Properties.Resources.menu_pause;
-            this.button2.Location = new System.Drawing.Point(48, 2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(39, 28);
-            this.button2.TabIndex = 1;
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.pauseToolStripMenuItem_Click);
+            this.btnDownloadPause.Image = global::NPS.Properties.Resources.menu_pause;
+            this.btnDownloadPause.Location = new System.Drawing.Point(48, 2);
+            this.btnDownloadPause.Name = "btnDownloadPause";
+            this.btnDownloadPause.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadPause.TabIndex = 1;
+            this.btnDownloadPause.UseVisualStyleBackColor = true;
+            this.btnDownloadPause.Click += new System.EventHandler(this.pauseToolStripMenuItem_Click);
             // 
-            // button1
+            // btnDownloadResume
             // 
-            this.button1.Image = global::NPS.Properties.Resources.menu_resume;
-            this.button1.Location = new System.Drawing.Point(3, 2);
-            this.button1.Margin = new System.Windows.Forms.Padding(0);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(39, 28);
-            this.button1.TabIndex = 0;
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.resumeToolStripMenuItem_Click);
+            this.btnDownloadResume.Image = global::NPS.Properties.Resources.menu_resume;
+            this.btnDownloadResume.Location = new System.Drawing.Point(3, 2);
+            this.btnDownloadResume.Margin = new System.Windows.Forms.Padding(0);
+            this.btnDownloadResume.Name = "btnDownloadResume";
+            this.btnDownloadResume.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadResume.TabIndex = 0;
+            this.btnDownloadResume.UseVisualStyleBackColor = true;
+            this.btnDownloadResume.Click += new System.EventHandler(this.resumeToolStripMenuItem_Click);
             // 
             // lstDownloadStatus
             // 
@@ -999,8 +999,8 @@ namespace NPS
         private System.Windows.Forms.Label lblCount;
         private System.Windows.Forms.ToolStripMenuItem pauseToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem resumeToolStripMenuItem;
-        private System.Windows.Forms.Button ResumeAll;
-        private System.Windows.Forms.Button PauseAll;
+        private System.Windows.Forms.Button btnDownloadResumeAll;
+        private System.Windows.Forms.Button btnDownloadPauseAll;
         private System.Windows.Forms.ColumnHeader colDownloadProgress;
         private PresentationControls.CheckBoxComboBox cmbRegion;
         private PresentationControls.CheckBoxComboBox cmbType;
@@ -1011,11 +1011,11 @@ namespace NPS
 		private System.Windows.Forms.RadioButton rbnUpdates;
 		private System.Windows.Forms.RadioButton rbnAvatars;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button btnDownloadCancel;
+        private System.Windows.Forms.Button btnDownloadPause;
+        private System.Windows.Forms.Button btnDownloadResume;
+        private System.Windows.Forms.Button btnDownloadClear;
+        private System.Windows.Forms.Button btnOpenDirectory;
         private System.Windows.Forms.ToolStripMenuItem ts_changeLog;
         private System.Windows.Forms.ToolStripMenuItem downloadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changelogToolStripMenuItem;

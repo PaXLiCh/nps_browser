@@ -40,41 +40,42 @@
             "test",
             "test2"}, "High-Definition-Ultra-HD-Wallpaper-96262544.jpg");
             System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("test", "(none)");
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.lvDownloaded = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.listView2 = new System.Windows.Forms.ListView();
+            this.btnOpenDirectory = new System.Windows.Forms.Button();
+            this.btnDeleteFromList = new System.Windows.Forms.Button();
+            this.btnUnpackPackage = new System.Windows.Forms.Button();
+            this.btnListRefresh = new System.Windows.Forms.Button();
+            this.btnAddCopyToList = new System.Windows.Forms.Button();
+            this.lvCopy = new System.Windows.Forms.ListView();
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.button6 = new System.Windows.Forms.Button();
+            this.btnClearCopyList = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // listView1
+            // lvDownloaded
             // 
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lvDownloaded.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.lvDownloaded.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1});
-            this.listView1.FullRowSelect = true;
-            this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            this.lvDownloaded.FullRowSelect = true;
+            this.lvDownloaded.HideSelection = false;
+            this.lvDownloaded.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
             listViewItem1,
             listViewItem2});
-            this.listView1.LargeImageList = this.imageList1;
-            this.listView1.Location = new System.Drawing.Point(5, 30);
-            this.listView1.MultiSelect = false;
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(390, 622);
-            this.listView1.SmallImageList = this.imageList1;
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+            this.lvDownloaded.LargeImageList = this.imageList1;
+            this.lvDownloaded.Location = new System.Drawing.Point(5, 30);
+            this.lvDownloaded.MultiSelect = false;
+            this.lvDownloaded.Name = "lvDownloaded";
+            this.lvDownloaded.Size = new System.Drawing.Size(390, 622);
+            this.lvDownloaded.SmallImageList = this.imageList1;
+            this.lvDownloaded.TabIndex = 0;
+            this.lvDownloaded.UseCompatibleStateImageBehavior = false;
+            this.lvDownloaded.View = System.Windows.Forms.View.Details;
+            this.lvDownloaded.SelectedIndexChanged += new System.EventHandler(this.ListViewDownloadedSelectedIndexChanged);
             // 
             // columnHeader1
             // 
@@ -96,126 +97,127 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "label1";
             // 
-            // button1
+            // btnOpenDirectory
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Image = global::NPS.Properties.Resources.opened_folder;
-            this.button1.Location = new System.Drawing.Point(940, 30);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(73, 42);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Open directory";
-            this.button1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnOpenDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenDirectory.Image = global::NPS.Properties.Resources.opened_folder;
+            this.btnOpenDirectory.Location = new System.Drawing.Point(940, 30);
+            this.btnOpenDirectory.Name = "btnOpenDirectory";
+            this.btnOpenDirectory.Size = new System.Drawing.Size(73, 42);
+            this.btnOpenDirectory.TabIndex = 2;
+            this.btnOpenDirectory.Text = "Open directory";
+            this.btnOpenDirectory.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnOpenDirectory.UseVisualStyleBackColor = true;
+            this.btnOpenDirectory.Click += new System.EventHandler(this.BtnOpenDirectoryClick);
             // 
-            // button2
+            // btnDeleteFromList
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Image = global::NPS.Properties.Resources.menu_cancel;
-            this.button2.Location = new System.Drawing.Point(940, 194);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 39);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Delete";
-            this.button2.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.btnDeleteFromList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeleteFromList.Image = global::NPS.Properties.Resources.menu_cancel;
+            this.btnDeleteFromList.Location = new System.Drawing.Point(940, 194);
+            this.btnDeleteFromList.Name = "btnDeleteFromList";
+            this.btnDeleteFromList.Size = new System.Drawing.Size(75, 39);
+            this.btnDeleteFromList.TabIndex = 3;
+            this.btnDeleteFromList.Text = "Delete";
+            this.btnDeleteFromList.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnDeleteFromList.UseVisualStyleBackColor = true;
+            this.btnDeleteFromList.Click += new System.EventHandler(this.BtnDeleteFromListClick);
             // 
-            // button3
+            // btnUnpackPackage
             // 
-            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Enabled = false;
-            this.button3.Image = global::NPS.Properties.Resources.menu_unpack;
-            this.button3.Location = new System.Drawing.Point(940, 239);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 43);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Unpack PKG";
-            this.button3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.btnUnpackPackage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnUnpackPackage.Enabled = false;
+            this.btnUnpackPackage.Image = global::NPS.Properties.Resources.menu_unpack;
+            this.btnUnpackPackage.Location = new System.Drawing.Point(940, 239);
+            this.btnUnpackPackage.Name = "btnUnpackPackage";
+            this.btnUnpackPackage.Size = new System.Drawing.Size(75, 43);
+            this.btnUnpackPackage.TabIndex = 4;
+            this.btnUnpackPackage.Text = "Unpack PKG";
+            this.btnUnpackPackage.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnUnpackPackage.UseVisualStyleBackColor = true;
+            this.btnUnpackPackage.Click += new System.EventHandler(this.BtnUnpackPackageClick);
             // 
-            // button4
+            // btnListRefresh
             // 
-            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button4.Image = global::NPS.Properties.Resources.menu_reload;
-            this.button4.Location = new System.Drawing.Point(940, 309);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 43);
-            this.button4.TabIndex = 5;
-            this.button4.Text = "Refresh";
-            this.button4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.btnListRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnListRefresh.Image = global::NPS.Properties.Resources.menu_reload;
+            this.btnListRefresh.Location = new System.Drawing.Point(940, 309);
+            this.btnListRefresh.Name = "btnListRefresh";
+            this.btnListRefresh.Size = new System.Drawing.Size(75, 43);
+            this.btnListRefresh.TabIndex = 5;
+            this.btnListRefresh.Text = "Refresh";
+            this.btnListRefresh.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnListRefresh.UseVisualStyleBackColor = true;
+            this.btnListRefresh.Click += new System.EventHandler(this.BtnListRefreshClick);
             // 
-            // button5
+            // btnAddCopyToList
             // 
-            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button5.Image = global::NPS.Properties.Resources.opened_folder;
-            this.button5.Location = new System.Drawing.Point(940, 78);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 55);
-            this.button5.TabIndex = 6;
-            this.button5.Text = "add to copy list";
-            this.button5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.btnAddCopyToList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddCopyToList.Image = global::NPS.Properties.Resources.opened_folder;
+            this.btnAddCopyToList.Location = new System.Drawing.Point(940, 78);
+            this.btnAddCopyToList.Name = "btnAddCopyToList";
+            this.btnAddCopyToList.Size = new System.Drawing.Size(75, 55);
+            this.btnAddCopyToList.TabIndex = 6;
+            this.btnAddCopyToList.Text = "add to copy list";
+            this.btnAddCopyToList.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnAddCopyToList.UseVisualStyleBackColor = true;
+            this.btnAddCopyToList.Click += new System.EventHandler(this.BtnAddCopyToListClick);
             // 
-            // listView2
+            // lvCopy
             // 
-            this.listView2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lvCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.listView2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.lvCopy.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader2});
-            this.listView2.FullRowSelect = true;
-            this.listView2.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            this.lvCopy.FullRowSelect = true;
+            this.lvCopy.HideSelection = false;
+            this.lvCopy.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
             listViewItem3,
             listViewItem4});
-            this.listView2.LargeImageList = this.imageList1;
-            this.listView2.Location = new System.Drawing.Point(419, 30);
-            this.listView2.MultiSelect = false;
-            this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(390, 622);
-            this.listView2.SmallImageList = this.imageList1;
-            this.listView2.TabIndex = 7;
-            this.listView2.UseCompatibleStateImageBehavior = false;
-            this.listView2.View = System.Windows.Forms.View.Details;
-            this.listView2.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
+            this.lvCopy.LargeImageList = this.imageList1;
+            this.lvCopy.Location = new System.Drawing.Point(419, 30);
+            this.lvCopy.MultiSelect = false;
+            this.lvCopy.Name = "lvCopy";
+            this.lvCopy.Size = new System.Drawing.Size(390, 622);
+            this.lvCopy.SmallImageList = this.imageList1;
+            this.lvCopy.TabIndex = 7;
+            this.lvCopy.UseCompatibleStateImageBehavior = false;
+            this.lvCopy.View = System.Windows.Forms.View.Details;
+            this.lvCopy.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "";
             this.columnHeader2.Width = 600;
             // 
-            // button6
+            // btnClearCopyList
             // 
-            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button6.Image = global::NPS.Properties.Resources.opened_folder;
-            this.button6.Location = new System.Drawing.Point(940, 133);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 55);
-            this.button6.TabIndex = 8;
-            this.button6.Text = "clear list";
-            this.button6.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.btnClearCopyList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearCopyList.Image = global::NPS.Properties.Resources.opened_folder;
+            this.btnClearCopyList.Location = new System.Drawing.Point(940, 133);
+            this.btnClearCopyList.Name = "btnClearCopyList";
+            this.btnClearCopyList.Size = new System.Drawing.Size(75, 55);
+            this.btnClearCopyList.TabIndex = 8;
+            this.btnClearCopyList.Text = "clear list";
+            this.btnClearCopyList.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnClearCopyList.UseVisualStyleBackColor = true;
+            this.btnClearCopyList.Click += new System.EventHandler(this.BtnClearCopyListClick);
             // 
             // Library
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1018, 653);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.listView2);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnClearCopyList);
+            this.Controls.Add(this.lvCopy);
+            this.Controls.Add(this.btnAddCopyToList);
+            this.Controls.Add(this.btnListRefresh);
+            this.Controls.Add(this.btnUnpackPackage);
+            this.Controls.Add(this.btnDeleteFromList);
+            this.Controls.Add(this.btnOpenDirectory);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.lvDownloaded);
             this.Name = "Library";
             this.Text = "Library";
             this.Load += new System.EventHandler(this.Library_Load);
@@ -226,17 +228,17 @@
 
         #endregion
 
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView lvDownloaded;
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.ListView listView2;
+        private System.Windows.Forms.Button btnOpenDirectory;
+        private System.Windows.Forms.Button btnDeleteFromList;
+        private System.Windows.Forms.Button btnUnpackPackage;
+        private System.Windows.Forms.Button btnListRefresh;
+        private System.Windows.Forms.Button btnAddCopyToList;
+        private System.Windows.Forms.ListView lvCopy;
         private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button btnClearCopyList;
     }
 }

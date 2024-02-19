@@ -64,20 +64,21 @@ namespace NPS
 
         WebClient wc = new WebClient();
         wc.Proxy = Settings.Instance.proxy;
-        wc.Encoding = System.Text.Encoding.UTF8;
+        wc.Encoding = Encoding.UTF8;
         string content = wc.DownloadString(new Uri("https://store.playstation.com/chihiro-api/viewfinder/" + region + "/19/" + contentId));
         wc.Dispose();
         //content = Encoding.UTF8.GetString(Encoding.Default.GetBytes(content));
 
-        var contentJson = SimpleJson.SimpleJson.DeserializeObject<PSNJson>(content);
-        pictureBox1.ImageLocation = contentJson.cover;
-        pictureBox2.ImageLocation = contentJson.picture1;
-        pictureBox3.ImageLocation = contentJson.picture2;
+        // TODO: content description
+        var contentJson = SimpleJson.SimpleJson.DeserializeObject<PSN.PSNJson>(content);
+        pictureBox1.ImageLocation = contentJson.Images[0].Url.ToString();
+        pictureBox2.ImageLocation = contentJson.Images[1].Url.ToString();
+        pictureBox3.ImageLocation = contentJson.Images[2].Url.ToString();
         this.Invoke(new Action(() =>
         {
             pb_status.Visible = false;
-            richTextBox1.Text = contentJson.desc;
-            label1.Text = contentJson.title_name + " (rating: " + contentJson.Stars + "/5.00)";
+            richTextBox1.Text = contentJson.LongDesc;
+            label1.Text = contentJson.TitleName + " (rating: " + contentJson.StarRating.Score + "/5.00)";
         }));
         isLoading = false;
     }
@@ -131,7 +132,7 @@ namespace NPS
 
                 foreach (Control c in this.Controls)
                 {
-                    if (a != c && c!=pb_status) c.Visible = true;
+                    if (a != c && c != pb_status) c.Visible = true;
                 }
             }
         }
@@ -140,80 +141,5 @@ namespace NPS
         {
 
         }
-    }
-
-    class PSNJson
-    {
-        public string cover
-        {
-            get
-            {
-                string r = null;
-                if (images.Length > 0) r = images[0].url;
-                return r;
-            }
-        }
-
-
-        public string picture1
-        {
-            get
-            {
-                string r = null;
-                if (promomedia.Length > 0)
-                    if (promomedia[0].materials.Length > 0)
-                        if (promomedia[0].materials[0].urls.Length > 0) r = promomedia[0].materials[0].urls[0].url;
-                return r;
-            }
-        }
-        public string picture2
-        {
-            get
-            {
-                string r = null;
-                if (promomedia.Length > 0)
-                    if (promomedia[0].materials.Length > 1)
-                        if (promomedia[0].materials[1].urls.Length > 0) r = promomedia[0].materials[1].urls[0].url;
-                return r;
-            }
-        }
-
-        public string desc
-        {
-            get
-            {
-                return long_desc.Replace("<br>", Environment.NewLine);
-            }
-        }
-
-        public string Stars
-        {
-            get { return star_rating.score; }
-        }
-
-        public NPSImage[] images;
-        public string long_desc;
-        public Promomedia[] promomedia;
-        public Star star_rating;
-        public string title_name;
-
-    }
-    class NPSImage
-    {
-        public int type;
-        public string url;
-    }
-    class Promomedia
-    {
-        public Material[] materials;
-    }
-    class Material
-    {
-        public NPSImage[] urls;
-    }
-
-    class Star
-    {
-        public string score;
     }
 }

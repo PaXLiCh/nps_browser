@@ -149,7 +149,7 @@ namespace NPS
                     try
                     {
                         WebClient wc = new WebClient();
-                        wc.Encoding = System.Text.Encoding.UTF8;
+                        wc.Encoding = Encoding.UTF8;
                         wc.Proxy = Settings.Instance.proxy;
                         wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
                         string content = wc.DownloadStringTaskAsync(new Uri(path)).Result;

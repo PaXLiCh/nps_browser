@@ -10,7 +10,7 @@ namespace NPS
     public class Item : IEquatable<Item>
     {
         public string TitleId, Region, TitleName, zRif, pkg;
-        public System.DateTime lastModifyDate = System.DateTime.MinValue;
+        public System.DateTime lastModifyDate = DateTime.MinValue;
         public int DLCs { get { return DlcItm.Count; } }
         public List<Item> DlcItm = new List<Item>();
         public string extension

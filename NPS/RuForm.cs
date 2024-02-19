@@ -107,14 +107,13 @@ namespace NPS
                 databaseAll = g;
                 Invoke(new Action(() =>
                 {
-
                     FinalizeDBLoad();
 
                     NPCache.I.localDatabase = databaseAll;
                     NPCache.I.types = types.ToList();
                     NPCache.I.regions = regions.ToList();
                     NPCache.I.Save(DateTime.Now);
-                    if (result != null) result.Invoke();
+                    result?.Invoke();
                     sync.Close();
                 }));
             });
@@ -349,8 +348,7 @@ namespace NPS
 
             foreach (var a in cmbType.CheckBoxItems)
                 if (a.Checked)
-                    Settings.Instance.selectedTypes.Add(a.Text)
-                        ;
+                    Settings.Instance.selectedTypes.Add(a.Text);
 
             Settings.Instance.Save();
             NPCache.I.Save();
@@ -379,17 +377,17 @@ namespace NPS
         {
             bool dirty = false;
             int searchEntryMatches = 0;
-            foreach( List<string> searchEntry in searchEntries )
+            foreach (List<string> searchEntry in searchEntries)
             {
                 dirty = false;
 
-                foreach( String searchTerm in searchEntry )
+                foreach (string searchTerm in searchEntry)
                 {
-                    if( searchTerm.Length == 0 ) continue;
-                    if( searchTerm.StartsWith( "-" ) )
+                    if (searchTerm.Length == 0) continue;
+                    if (searchTerm.StartsWith("-"))
                     {
 
-                        if( ( item.TitleName.ToLower().Contains( searchTerm.Substring( 1 ).ToLower() ) ) 
+                        if ((item.TitleName.ToLower().Contains(searchTerm.Substring(1).ToLower()))
                             // || ( item.ContentId.ToLower().Contains( searchTerm.Substring( 1 ).ToLower() ) ) // Causing a crash when the game doesn't have a ContentId
                             )
                         {
@@ -397,41 +395,41 @@ namespace NPS
                             break;
                         }
                     }
-                    else if( ( !item.TitleName.ToLower().Contains( searchTerm.ToLower() ) ) &&
-                        ( !item.TitleId.ToLower().Contains( searchTerm.ToLower() ) ) )
+                    else if ((!item.TitleName.ToLower().Contains(searchTerm.ToLower())) &&
+                        (!item.TitleId.ToLower().Contains(searchTerm.ToLower())))
                     {
                         dirty = true;
                     }
 
                 }
-                if( !dirty )
+                if (!dirty)
                 {
                     searchEntryMatches++;
                 }
             }
-            return (searchEntryMatches > 0 && searchEntries.Count > 0 );
+            return (searchEntryMatches > 0 && searchEntries.Count > 0);
         }
 
         private List<List<string>> parseSearchBar()
         {
             List<List<string>> searchEntries = new List<List<string>>();
 
-            string[] rawEntries = txtSearch.Text?.Split( "||".ToCharArray() );
-            foreach( string entry in rawEntries )
+            string[] rawEntries = txtSearch.Text?.Split("||".ToCharArray());
+            foreach (string entry in rawEntries)
             {
                 if (entry != "")
                 {
-	                List<string> searchTerms = new List<string>();
-	
-	                string[] rawTerms = entry?.Split( ' ' );
-	                foreach( string terms in rawTerms )
-	                {
-	                    if( terms != "" )
-	                    {
-	                        searchTerms.Add( terms );
-	                    }
-	                }
-	                searchEntries.Add( searchTerms );
+                    List<string> searchTerms = new List<string>();
+
+                    string[] rawTerms = entry?.Split(' ');
+                    foreach (string terms in rawTerms)
+                    {
+                        if (terms != "")
+                        {
+                            searchTerms.Add(terms);
+                        }
+                    }
+                    searchEntries.Add(searchTerms);
                 }
             }
             return searchEntries;
@@ -445,8 +443,8 @@ namespace NPS
 
             foreach (var item in currentDatabase)
             {
-                bool dirty =  searchEntries.Count != 0 && !itemMatchesSearchEntries(item, searchEntries);
- 
+                bool dirty = searchEntries.Count != 0 && !itemMatchesSearchEntries(item, searchEntries);
+
 
                 if (!dirty)
                 {
@@ -476,13 +474,13 @@ namespace NPS
                     }
                 }
 
-                if ((dirty == false) && 
-                    ContainsCmbBox(cmbRegion, item.Region) && 
+                if ((dirty == false) &&
+                    ContainsCmbBox(cmbRegion, item.Region) &&
                     ContainsCmbBox(cmbType, item.contentType)
                     )
                 /*(cmbRegion.Text == "ALL" || item.Region.Contains(cmbRegion.Text)))*/
                 {
-                    itms.Add( item );
+                    itms.Add(item);
                 }
             }
 
@@ -577,7 +575,7 @@ namespace NPS
         //}
 
         // Download
-        private void btnDownload_Click(object sender, EventArgs e)
+        private void BtnDownloadClick(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(Settings.Instance.downloadDir) || string.IsNullOrEmpty(Settings.Instance.pkgPath))
             {
@@ -604,7 +602,7 @@ namespace NPS
 
                     JsonObject fields = SimpleJson.SimpleJson.DeserializeObject<JsonObject>(json);
                     JsonArray pieces = fields["pieces"] as JsonArray;
-                    foreach (JsonObject piece in pieces)
+                    foreach (JsonObject piece in pieces.Cast<JsonObject>())
                     {
                         Item inneritm = new Item()
                         {
@@ -636,12 +634,13 @@ namespace NPS
                     }
                 }
                 else
+                {
                     toDownload.Add(a);
+                }
             }
 
             foreach (var a in toDownload)
             {
-
                 bool contains = false;
                 foreach (var d in downloads)
                     if (d.currentDownload == a)
@@ -724,18 +723,15 @@ namespace NPS
 
         private void downloadAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            btnDownload_Click(null, null);
+            BtnDownloadClick(null, null);
             downloadAllDlcsToolStripMenuItem_Click(null, null);
-
         }
 
-        private void downloadAllWithPatchesToolStripMenuItem_Click( object sender, EventArgs e )
+        private async void downloadAllWithPatchesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            btnDownload_Click( null, null );
-            downloadAllDlcsToolStripMenuItem_Click( null, null );
-            checkForPatchesAndDownload();
+            BtnDownloadClick(null, null);
+            downloadAllDlcsToolStripMenuItem_Click(null, null);
+            await checkForPatchesAndDownloadAsync();
         }
 
         // lstTitles Menu Strip
@@ -751,7 +747,6 @@ namespace NPS
                 txtSearch.Text = t.TitleId;
                 rbnAll.Checked = true;
             }
-
         }
 
         private void downloadAllDlcsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1015,7 +1010,7 @@ namespace NPS
 
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void BtnOpenDirectory(object sender, EventArgs e)
         {
             if (lstDownloadStatus.SelectedItems.Count == 0) return;
             var worker = lstDownloadStatus.SelectedItems[0];
@@ -1065,41 +1060,41 @@ namespace NPS
 
             if (lstTitles.SelectedItems.Count == 0) return;
 
-            foreach( var entry in lstTitles.SelectedItems )
+            foreach (var entry in lstTitles.SelectedItems)
             {
-                GamePatches gp = new GamePatches( lstTitles.SelectedItems[ 0 ].Tag as Item, ( item ) =>
+                GamePatches gp = new GamePatches(lstTitles.SelectedItems[0].Tag as Item, (item) =>
                 {
-                    DownloadWorker dw = new DownloadWorker( item, this );
-                    lstDownloadStatus.Items.Add( dw.lvi );
-                    lstDownloadStatus.AddEmbeddedControl( dw.progress, 3, lstDownloadStatus.Items.Count - 1 );
-                    downloads.Add( dw );
-                } );
+                    DownloadWorker dw = new DownloadWorker(item, this);
+                    lstDownloadStatus.Items.Add(dw.lvi);
+                    lstDownloadStatus.AddEmbeddedControl(dw.progress, 3, lstDownloadStatus.Items.Count - 1);
+                    downloads.Add(dw);
+                });
 
                 gp.AskForUpdate();
             }
         }
 
-        private void checkForPatchesAndDownload()
+        private async Task checkForPatchesAndDownloadAsync()
         {
-            if( string.IsNullOrEmpty( Settings.Instance.HMACKey ) )
+            if (string.IsNullOrEmpty(Settings.Instance.HMACKey))
             {
-                MessageBox.Show( "No hmackey" );
+                MessageBox.Show("No hmackey");
                 return;
             }
 
-            if( lstTitles.SelectedItems.Count == 0 ) return;
+            if (lstTitles.SelectedItems.Count == 0) return;
 
 
-            foreach( var entry in lstTitles.SelectedItems )
+            foreach (var entry in lstTitles.SelectedItems)
             {
-                GamePatches gp = new GamePatches( lstTitles.SelectedItems[ 0 ].Tag as Item, ( item ) =>
+                GamePatches gp = new GamePatches(lstTitles.SelectedItems[0].Tag as Item, (item) =>
                 {
-                    DownloadWorker dw = new DownloadWorker( item, this );
-                    lstDownloadStatus.Items.Add( dw.lvi );
-                    lstDownloadStatus.AddEmbeddedControl( dw.progress, 3, lstDownloadStatus.Items.Count - 1 );
-                    downloads.Add( dw );
-                } );
-                gp.DownloadUpdateNoAsk();
+                    DownloadWorker dw = new DownloadWorker(item, this);
+                    lstDownloadStatus.Items.Add(dw.lvi);
+                    lstDownloadStatus.AddEmbeddedControl(dw.progress, 3, lstDownloadStatus.Items.Count - 1);
+                    downloads.Add(dw);
+                });
+                await gp.DownloadUpdateNoAsk();
             }
         }
 

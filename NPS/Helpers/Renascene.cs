@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using System.IO;
 using System.Net;
 
 namespace NPS.Helpers
@@ -32,18 +30,26 @@ namespace NPS.Helpers
                     case "ASIA": region = "HK/en"; break;
                 }
 
-                
-
                 var content = "";
 
                 try
                 {
-                    content = wc.DownloadString(new Uri("https://store.playstation.com/chihiro-api/viewfinder/" + region + "/19/" + itm.ContentId));
+                    //var url = $"https://store.playstation.com/chihiro-api/viewfinder/{region}/19/{itm.ContentId}";
+                    var url = $"https://store.playstation.com/store/api/chihiro/00_09_000/container/{region}/999/{itm.ContentId}";
+                    content = wc.DownloadString(new Uri(url));
 
-                    var contentJson = SimpleJson.SimpleJson.DeserializeObject<PSNJson>(content);
-                    this.imgUrl = contentJson.cover;
+                    var contentJson = PSN.PSNJson.FromJson(content);
+                    var images = contentJson?.Images;
+                    if (images == null)
+                    {
+                        this.imgUrl = null;
+                    }
+                    else
+                    {
+                        this.imgUrl = images[0].Url.AbsoluteUri;
+                    }
                 }
-                catch
+                catch(Exception e)
                 {
                     this.imgUrl = null;
                 }
@@ -105,7 +111,7 @@ namespace NPS.Helpers
 
             try
             {
-                var webRequest = HttpWebRequest.Create(itm.pkg);
+                var webRequest = WebRequest.Create(itm.pkg);
                 webRequest.Proxy = Settings.Instance.proxy;
                 webRequest.Method = "HEAD";
 

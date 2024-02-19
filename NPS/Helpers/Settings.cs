@@ -51,7 +51,7 @@ public class Settings
 
     public static void Load()
     {
-        if (System.IO.File.Exists(path))
+        if (File.Exists(path))
         {
             var stream = File.OpenRead(path);
             var formatter = new BinaryFormatter();

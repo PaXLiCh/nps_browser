@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NPS_browser")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NPS browser")]
+[assembly: AssemblyDescription("Browser for No Pay Station")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NPS_browser")]
+[assembly: AssemblyProduct("NPS browser")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

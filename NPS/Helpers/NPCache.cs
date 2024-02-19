@@ -1,4 +1,5 @@
 ﻿using NPS.Helpers;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -6,7 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 [System.Serializable]
 public class NPCache
 {
-
     public static NPCache I
     {
         get
@@ -19,11 +19,11 @@ public class NPCache
         }
     }
 
+    private static NPCache _i;
     private bool _cacheInvalid = false;
 
     public bool IsCacheIsInvalid { get { return _cacheInvalid || this.UpdateDate > System.DateTime.Now.AddDays(-4); } }
 
-    static NPCache _i;
     public const int ver = 1;
     public System.DateTime UpdateDate;
     public List<NPS.Item> localDatabase = new List<NPS.Item>();
@@ -33,7 +33,7 @@ public class NPCache
 
     public static void Load()
     {
-        if (System.IO.File.Exists(path))
+        if (File.Exists(path))
         {
             var stream = File.OpenRead(path);
             var formatter = new BinaryFormatter();
@@ -66,10 +66,4 @@ public class NPCache
     {
         this.UpdateDate = creationDate;
     }
-
-
 }
-
-
-
-
