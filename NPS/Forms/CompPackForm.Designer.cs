@@ -1,6 +1,6 @@
 ﻿namespace NPS
 {
-    partial class CompPack
+    partial class CompPackForm
     {
         /// <summary>
         /// Required designer variable.

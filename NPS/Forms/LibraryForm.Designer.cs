@@ -1,6 +1,6 @@
 ﻿namespace NPS
 {
-    partial class Library
+    partial class LibraryForm
     {
         /// <summary>
         /// Required designer variable.
@@ -34,7 +34,7 @@
             "test",
             "test2"}, "High-Definition-Ultra-HD-Wallpaper-96262544.jpg");
             System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("test", "(none)");
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Library));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LibraryForm));
             System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "Testowy item",
             "test",
@@ -43,7 +43,7 @@
             this.lvDownloaded = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.label1 = new System.Windows.Forms.Label();
+            this.LblDownloadsRootPath = new System.Windows.Forms.Label();
             this.btnOpenDirectory = new System.Windows.Forms.Button();
             this.btnDeleteFromList = new System.Windows.Forms.Button();
             this.btnUnpackPackage = new System.Windows.Forms.Button();
@@ -88,14 +88,14 @@
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList1.Images.SetKeyName(0, "High-Definition-Ultra-HD-Wallpaper-96262544.jpg");
             // 
-            // label1
+            // LblDownloadsRootPath
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "label1";
+            this.LblDownloadsRootPath.AutoSize = true;
+            this.LblDownloadsRootPath.Location = new System.Drawing.Point(13, 13);
+            this.LblDownloadsRootPath.Name = "LblDownloadsRootPath";
+            this.LblDownloadsRootPath.Size = new System.Drawing.Size(35, 13);
+            this.LblDownloadsRootPath.TabIndex = 1;
+            this.LblDownloadsRootPath.Text = ".";
             // 
             // btnOpenDirectory
             // 
@@ -184,7 +184,6 @@
             this.lvCopy.TabIndex = 7;
             this.lvCopy.UseCompatibleStateImageBehavior = false;
             this.lvCopy.View = System.Windows.Forms.View.Details;
-            this.lvCopy.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
             // 
             // columnHeader2
             // 
@@ -216,11 +215,11 @@
             this.Controls.Add(this.btnUnpackPackage);
             this.Controls.Add(this.btnDeleteFromList);
             this.Controls.Add(this.btnOpenDirectory);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.LblDownloadsRootPath);
             this.Controls.Add(this.lvDownloaded);
             this.Name = "Library";
             this.Text = "Library";
-            this.Load += new System.EventHandler(this.Library_Load);
+            this.Load += new System.EventHandler(this.LibraryFormLoad);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -230,7 +229,7 @@
 
         private System.Windows.Forms.ListView lvDownloaded;
         private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label LblDownloadsRootPath;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.Button btnOpenDirectory;
         private System.Windows.Forms.Button btnDeleteFromList;

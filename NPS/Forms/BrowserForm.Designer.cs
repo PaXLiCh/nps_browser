@@ -1,6 +1,6 @@
 namespace NPS
 {
-    partial class NPSBrowser
+    partial class BrowserForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,8 +29,11 @@ namespace NPS
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.StatusStrip statusStrip;
             PresentationControls.CheckBoxProperties checkBoxProperties1 = new PresentationControls.CheckBoxProperties();
             PresentationControls.CheckBoxProperties checkBoxProperties2 = new PresentationControls.CheckBoxProperties();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.mnuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,14 +61,14 @@ namespace NPS
             this.downloadAllWithPatchesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkForPatchesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleDownloadedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemCompPack = new System.Windows.Forms.ToolStripMenuItem();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.btnDownload = new System.Windows.Forms.Button();
             this.rbnGames = new System.Windows.Forms.RadioButton();
             this.rbnDLC = new System.Windows.Forms.RadioButton();
-            this.label4 = new System.Windows.Forms.Label();
+            this.LblContentTypeSelect = new System.Windows.Forms.Label();
             this.ptbCover = new System.Windows.Forms.PictureBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.txtPkgInfo = new System.Windows.Forms.Label();
             this.lstDownloadStatusMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.pauseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,39 +77,41 @@ namespace NPS
             this.clearCompletedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.lnkOpenRenaScene = new System.Windows.Forms.LinkLabel();
+            this.lnkSearchAboutTitle = new System.Windows.Forms.LinkLabel();
             this.pnlMain = new System.Windows.Forms.Panel();
             this.splMain = new System.Windows.Forms.SplitContainer();
             this.splList = new System.Windows.Forms.SplitContainer();
             this.pnlSearch = new System.Windows.Forms.Panel();
-            this.cmbType = new PresentationControls.CheckBoxComboBox();
-            this.cmbRegion = new PresentationControls.CheckBoxComboBox();
-            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblCount = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.rbnAvatars = new System.Windows.Forms.RadioButton();
             this.rbnThemes = new System.Windows.Forms.RadioButton();
             this.rbnUpdates = new System.Windows.Forms.RadioButton();
+            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.lblCount = new System.Windows.Forms.Label();
             this.rbnDownloaded = new System.Windows.Forms.RadioButton();
             this.rbnUndownloaded = new System.Windows.Forms.RadioButton();
             this.rbnAll = new System.Windows.Forms.RadioButton();
             this.chkUnless = new System.Windows.Forms.CheckBox();
             this.chkHideDownloaded = new System.Windows.Forms.CheckBox();
-            this.lb_ps3licenseType = new System.Windows.Forms.Label();
+            this.lblPs3LicenseType = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.btnDownloadResumeAll = new System.Windows.Forms.Button();
-            this.btnOpenDirectory = new System.Windows.Forms.Button();
-            this.btnDownloadPauseAll = new System.Windows.Forms.Button();
-            this.btnDownloadClear = new System.Windows.Forms.Button();
-            this.btnDownloadCancel = new System.Windows.Forms.Button();
-            this.btnDownloadPause = new System.Windows.Forms.Button();
+            this.flowLayoutPanelDownloads = new System.Windows.Forms.FlowLayoutPanel();
             this.btnDownloadResume = new System.Windows.Forms.Button();
+            this.btnDownloadPause = new System.Windows.Forms.Button();
+            this.btnDownloadCancel = new System.Windows.Forms.Button();
+            this.btnDownloadClear = new System.Windows.Forms.Button();
+            this.btnDownloadPauseAll = new System.Windows.Forms.Button();
+            this.btnOpenDirectory = new System.Windows.Forms.Button();
+            this.btnDownloadResumeAll = new System.Windows.Forms.Button();
+            this.cmbType = new PresentationControls.CheckBoxComboBox();
+            this.cmbRegion = new PresentationControls.CheckBoxComboBox();
             this.lstDownloadStatus = new ListViewEmbeddedControls.ListViewEx();
             this.colDownloadTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colDownloadSpeed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colDownloadStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colDownloadProgress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            statusStrip = new System.Windows.Forms.StatusStrip();
+            statusStrip.SuspendLayout();
             this.mnuMain.SuspendLayout();
             this.lstTitlesMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ptbCover)).BeginInit();
@@ -121,13 +126,37 @@ namespace NPS
             this.splList.Panel2.SuspendLayout();
             this.splList.SuspendLayout();
             this.pnlSearch.SuspendLayout();
-            this.flowLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            this.flowLayoutPanel3.SuspendLayout();
+            this.flowLayoutPanelDownloads.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // statusStrip
+            // 
+            statusStrip.AutoSize = false;
+            statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel,
+            this.toolStripProgressBar});
+            statusStrip.Location = new System.Drawing.Point(0, 701);
+            statusStrip.Name = "statusStrip";
+            statusStrip.Size = new System.Drawing.Size(1085, 22);
+            statusStrip.TabIndex = 21;
+            statusStrip.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(887, 17);
+            this.toolStripStatusLabel.Spring = true;
+            this.toolStripStatusLabel.Text = "Ready";
+            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // toolStripProgressBar
+            // 
+            this.toolStripProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripProgressBar.Name = "toolStripProgressBar";
+            this.toolStripProgressBar.Size = new System.Drawing.Size(150, 16);
+            this.toolStripProgressBar.Value = 25;
             // 
             // mnuMain
             // 
@@ -158,7 +187,7 @@ namespace NPS
             // 
             this.optionsToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_options;
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -166,27 +195,27 @@ namespace NPS
             // 
             this.reloadToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_reload;
             this.reloadToolStripMenuItem.Name = "reloadToolStripMenuItem";
-            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.reloadToolStripMenuItem.Text = "Sync cache";
             this.reloadToolStripMenuItem.Click += new System.EventHandler(this.Sync);
             // 
             // ts_changeLog
             // 
             this.ts_changeLog.Name = "ts_changeLog";
-            this.ts_changeLog.Size = new System.Drawing.Size(180, 22);
+            this.ts_changeLog.Size = new System.Drawing.Size(133, 22);
             this.ts_changeLog.Text = "Changelog";
             this.ts_changeLog.Click += new System.EventHandler(this.ts_changeLog_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(130, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Image = global::NPS.Properties.Resources.menu_exit;
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.exitToolStripMenuItem.Tag = "Exit";
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
@@ -204,14 +233,14 @@ namespace NPS
             // downloadToolStripMenuItem
             // 
             this.downloadToolStripMenuItem.Name = "downloadToolStripMenuItem";
-            this.downloadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.downloadToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.downloadToolStripMenuItem.Text = "Download";
             this.downloadToolStripMenuItem.Click += new System.EventHandler(this.downloadUpdateToolStripMenuItem_Click);
             // 
             // changelogToolStripMenuItem
             // 
             this.changelogToolStripMenuItem.Name = "changelogToolStripMenuItem";
-            this.changelogToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changelogToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.changelogToolStripMenuItem.Text = "Changelog";
             this.changelogToolStripMenuItem.Click += new System.EventHandler(this.changelogToolStripMenuItem_Click);
             // 
@@ -244,7 +273,7 @@ namespace NPS
             this.lstTitles.HideSelection = false;
             this.lstTitles.Location = new System.Drawing.Point(0, 52);
             this.lstTitles.Name = "lstTitles";
-            this.lstTitles.Size = new System.Drawing.Size(851, 368);
+            this.lstTitles.Size = new System.Drawing.Size(851, 398);
             this.lstTitles.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lstTitles.TabIndex = 1;
             this.lstTitles.UseCompatibleStateImageBehavior = false;
@@ -292,7 +321,7 @@ namespace NPS
             this.downloadAllWithPatchesToolStripMenuItem,
             this.checkForPatchesToolStripMenuItem,
             this.toggleDownloadedToolStripMenuItem,
-            this.toolStripMenuItem1});
+            this.toolStripMenuItemCompPack});
             this.lstTitlesMenuStrip.Name = "contextMenuStrip2";
             this.lstTitlesMenuStrip.Size = new System.Drawing.Size(207, 180);
             // 
@@ -348,12 +377,12 @@ namespace NPS
             this.toggleDownloadedToolStripMenuItem.Text = "Toggle Download Mark";
             this.toggleDownloadedToolStripMenuItem.Click += new System.EventHandler(this.toggleDownloadedToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem1
+            // toolStripMenuItemCompPack
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(206, 22);
-            this.toolStripMenuItem1.Text = "Download CompPack";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.toolStripMenuItemCompPack.Name = "toolStripMenuItemCompPack";
+            this.toolStripMenuItemCompPack.Size = new System.Drawing.Size(206, 22);
+            this.toolStripMenuItemCompPack.Text = "Download CompPack";
+            this.toolStripMenuItemCompPack.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // txtSearch
             // 
@@ -405,15 +434,15 @@ namespace NPS
             this.rbnDLC.UseVisualStyleBackColor = true;
             this.rbnDLC.CheckedChanged += new System.EventHandler(this.rbnDLC_CheckedChanged);
             // 
-            // label4
+            // LblContentTypeSelect
             // 
-            this.label4.Location = new System.Drawing.Point(3, 3);
-            this.label4.Margin = new System.Windows.Forms.Padding(3);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(60, 17);
-            this.label4.TabIndex = 11;
-            this.label4.Text = "Browse for:";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.LblContentTypeSelect.Location = new System.Drawing.Point(3, 3);
+            this.LblContentTypeSelect.Margin = new System.Windows.Forms.Padding(3);
+            this.LblContentTypeSelect.Name = "LblContentTypeSelect";
+            this.LblContentTypeSelect.Size = new System.Drawing.Size(60, 17);
+            this.LblContentTypeSelect.TabIndex = 11;
+            this.LblContentTypeSelect.Text = "Browse for:";
+            this.LblContentTypeSelect.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // ptbCover
             // 
@@ -426,15 +455,15 @@ namespace NPS
             this.ptbCover.TabIndex = 12;
             this.ptbCover.TabStop = false;
             // 
-            // label5
+            // txtPkgInfo
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtPkgInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.Location = new System.Drawing.Point(3, 335);
-            this.label5.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(209, 65);
-            this.label5.TabIndex = 13;
+            this.txtPkgInfo.Location = new System.Drawing.Point(3, 335);
+            this.txtPkgInfo.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.txtPkgInfo.Name = "txtPkgInfo";
+            this.txtPkgInfo.Size = new System.Drawing.Size(209, 65);
+            this.txtPkgInfo.TabIndex = 13;
             // 
             // lstDownloadStatusMenuStrip
             // 
@@ -500,19 +529,19 @@ namespace NPS
             this.timer2.Interval = 500;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // lnkOpenRenaScene
+            // lnkSearchAboutTitle
             // 
-            this.lnkOpenRenaScene.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lnkSearchAboutTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lnkOpenRenaScene.Location = new System.Drawing.Point(2, 403);
-            this.lnkOpenRenaScene.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.lnkOpenRenaScene.Name = "lnkOpenRenaScene";
-            this.lnkOpenRenaScene.Size = new System.Drawing.Size(212, 17);
-            this.lnkOpenRenaScene.TabIndex = 17;
-            this.lnkOpenRenaScene.TabStop = true;
-            this.lnkOpenRenaScene.Text = "Open Google (screens)";
-            this.lnkOpenRenaScene.Visible = false;
-            this.lnkOpenRenaScene.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkOpenRenaScene_LinkClicked);
+            this.lnkSearchAboutTitle.Location = new System.Drawing.Point(2, 403);
+            this.lnkSearchAboutTitle.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.lnkSearchAboutTitle.Name = "lnkSearchAboutTitle";
+            this.lnkSearchAboutTitle.Size = new System.Drawing.Size(212, 17);
+            this.lnkSearchAboutTitle.TabIndex = 17;
+            this.lnkSearchAboutTitle.TabStop = true;
+            this.lnkSearchAboutTitle.Text = "Open Google (screens)";
+            this.lnkSearchAboutTitle.Visible = false;
+            this.lnkSearchAboutTitle.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkOpenRenaScene_LinkClicked);
             // 
             // pnlMain
             // 
@@ -521,7 +550,7 @@ namespace NPS
             this.pnlMain.Location = new System.Drawing.Point(0, 24);
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Padding = new System.Windows.Forms.Padding(6);
-            this.pnlMain.Size = new System.Drawing.Size(1085, 699);
+            this.pnlMain.Size = new System.Drawing.Size(1085, 677);
             this.pnlMain.TabIndex = 18;
             // 
             // splMain
@@ -537,9 +566,10 @@ namespace NPS
             // 
             // splMain.Panel2
             // 
-            this.splMain.Panel2.Controls.Add(this.splitContainer1);
-            this.splMain.Size = new System.Drawing.Size(1073, 687);
-            this.splMain.SplitterDistance = 420;
+            this.splMain.Panel2.Controls.Add(this.flowLayoutPanelDownloads);
+            this.splMain.Panel2.Controls.Add(this.lstDownloadStatus);
+            this.splMain.Size = new System.Drawing.Size(1073, 665);
+            this.splMain.SplitterDistance = 450;
             this.splMain.TabIndex = 18;
             // 
             // splList
@@ -560,83 +590,34 @@ namespace NPS
             this.splList.Panel2.Controls.Add(this.rbnAll);
             this.splList.Panel2.Controls.Add(this.chkUnless);
             this.splList.Panel2.Controls.Add(this.chkHideDownloaded);
-            this.splList.Panel2.Controls.Add(this.lb_ps3licenseType);
+            this.splList.Panel2.Controls.Add(this.lblPs3LicenseType);
             this.splList.Panel2.Controls.Add(this.btnDownload);
             this.splList.Panel2.Controls.Add(this.ptbCover);
             this.splList.Panel2.Controls.Add(this.panel1);
-            this.splList.Panel2.Controls.Add(this.lnkOpenRenaScene);
-            this.splList.Panel2.Controls.Add(this.label5);
-            this.splList.Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.splList_Panel2_Paint);
-            this.splList.Size = new System.Drawing.Size(1073, 420);
+            this.splList.Panel2.Controls.Add(this.lnkSearchAboutTitle);
+            this.splList.Panel2.Controls.Add(this.txtPkgInfo);
+            this.splList.Size = new System.Drawing.Size(1073, 450);
             this.splList.SplitterDistance = 851;
             this.splList.TabIndex = 18;
             // 
             // pnlSearch
             // 
+            this.pnlSearch.Controls.Add(this.txtSearch);
             this.pnlSearch.Controls.Add(this.cmbType);
             this.pnlSearch.Controls.Add(this.cmbRegion);
-            this.pnlSearch.Controls.Add(this.flowLayoutPanel3);
             this.pnlSearch.Controls.Add(this.flowLayoutPanel1);
-            this.pnlSearch.Controls.Add(this.txtSearch);
+            this.pnlSearch.Controls.Add(this.flowLayoutPanel3);
             this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSearch.Location = new System.Drawing.Point(0, 0);
             this.pnlSearch.Name = "pnlSearch";
             this.pnlSearch.Size = new System.Drawing.Size(851, 52);
             this.pnlSearch.TabIndex = 17;
             // 
-            // cmbType
-            // 
-            this.cmbType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            checkBoxProperties1.AutoSize = true;
-            checkBoxProperties1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cmbType.CheckBoxProperties = checkBoxProperties1;
-            this.cmbType.DisplayMemberSingleItem = "";
-            this.cmbType.FormattingEnabled = true;
-            this.cmbType.Location = new System.Drawing.Point(549, 3);
-            this.cmbType.Name = "cmbType";
-            this.cmbType.Size = new System.Drawing.Size(152, 21);
-            this.cmbType.TabIndex = 20;
-            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
-            // 
-            // cmbRegion
-            // 
-            this.cmbRegion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            checkBoxProperties2.AutoSize = true;
-            checkBoxProperties2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cmbRegion.CheckBoxProperties = checkBoxProperties2;
-            this.cmbRegion.DisplayMemberSingleItem = "";
-            this.cmbRegion.FormattingEnabled = true;
-            this.cmbRegion.Location = new System.Drawing.Point(707, 3);
-            this.cmbRegion.MaxDropDownItems = 5;
-            this.cmbRegion.Name = "cmbRegion";
-            this.cmbRegion.Size = new System.Drawing.Size(138, 21);
-            this.cmbRegion.TabIndex = 19;
-            // 
-            // flowLayoutPanel3
-            // 
-            this.flowLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel3.Controls.Add(this.lblCount);
-            this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(692, 26);
-            this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(156, 23);
-            this.flowLayoutPanel3.TabIndex = 18;
-            // 
-            // lblCount
-            // 
-            this.lblCount.Location = new System.Drawing.Point(3, 3);
-            this.lblCount.Margin = new System.Windows.Forms.Padding(3);
-            this.lblCount.Name = "lblCount";
-            this.lblCount.Size = new System.Drawing.Size(150, 17);
-            this.lblCount.TabIndex = 11;
-            this.lblCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel1.Controls.Add(this.label4);
+            this.flowLayoutPanel1.Controls.Add(this.LblContentTypeSelect);
             this.flowLayoutPanel1.Controls.Add(this.rbnGames);
             this.flowLayoutPanel1.Controls.Add(this.rbnAvatars);
             this.flowLayoutPanel1.Controls.Add(this.rbnDLC);
@@ -685,6 +666,26 @@ namespace NPS
             this.rbnUpdates.UseVisualStyleBackColor = true;
             this.rbnUpdates.Visible = false;
             this.rbnUpdates.CheckedChanged += new System.EventHandler(this.rbnUpdates_CheckedChanged);
+            // 
+            // flowLayoutPanel3
+            // 
+            this.flowLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel3.Controls.Add(this.lblCount);
+            this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(692, 26);
+            this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(156, 23);
+            this.flowLayoutPanel3.TabIndex = 18;
+            // 
+            // lblCount
+            // 
+            this.lblCount.Location = new System.Drawing.Point(3, 3);
+            this.lblCount.Margin = new System.Windows.Forms.Padding(3);
+            this.lblCount.Name = "lblCount";
+            this.lblCount.Size = new System.Drawing.Size(150, 17);
+            this.lblCount.TabIndex = 11;
+            this.lblCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // rbnDownloaded
             // 
@@ -738,7 +739,7 @@ namespace NPS
             // 
             this.chkHideDownloaded.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.chkHideDownloaded.AutoSize = true;
-            this.chkHideDownloaded.Location = new System.Drawing.Point(106, 26);
+            this.chkHideDownloaded.Location = new System.Drawing.Point(106, 23);
             this.chkHideDownloaded.Name = "chkHideDownloaded";
             this.chkHideDownloaded.Size = new System.Drawing.Size(109, 17);
             this.chkHideDownloaded.TabIndex = 20;
@@ -747,13 +748,13 @@ namespace NPS
             this.chkHideDownloaded.Visible = false;
             this.chkHideDownloaded.CheckedChanged += new System.EventHandler(this.chkHideDownloaded_CheckedChanged);
             // 
-            // lb_ps3licenseType
+            // lblPs3LicenseType
             // 
-            this.lb_ps3licenseType.AutoSize = true;
-            this.lb_ps3licenseType.Location = new System.Drawing.Point(3, 379);
-            this.lb_ps3licenseType.Name = "lb_ps3licenseType";
-            this.lb_ps3licenseType.Size = new System.Drawing.Size(0, 13);
-            this.lb_ps3licenseType.TabIndex = 19;
+            this.lblPs3LicenseType.AutoSize = true;
+            this.lblPs3LicenseType.Location = new System.Drawing.Point(3, 379);
+            this.lblPs3LicenseType.Name = "lblPs3LicenseType";
+            this.lblPs3LicenseType.Size = new System.Drawing.Size(0, 13);
+            this.lblPs3LicenseType.TabIndex = 19;
             // 
             // panel1
             // 
@@ -761,62 +762,65 @@ namespace NPS
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(218, 30);
             this.panel1.TabIndex = 18;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
-            // splitContainer1
+            // flowLayoutPanelDownloads
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnDownloadResume);
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnDownloadPause);
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnDownloadCancel);
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnDownloadClear);
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnDownloadPauseAll);
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnOpenDirectory);
+            this.flowLayoutPanelDownloads.Controls.Add(this.btnDownloadResumeAll);
+            this.flowLayoutPanelDownloads.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanelDownloads.Name = "flowLayoutPanelDownloads";
+            this.flowLayoutPanelDownloads.Size = new System.Drawing.Size(425, 34);
+            this.flowLayoutPanelDownloads.TabIndex = 5;
             // 
-            // splitContainer1.Panel1
+            // btnDownloadResume
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadResumeAll);
-            this.splitContainer1.Panel1.Controls.Add(this.btnOpenDirectory);
-            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadPauseAll);
-            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadClear);
-            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadCancel);
-            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadPause);
-            this.splitContainer1.Panel1.Controls.Add(this.btnDownloadResume);
-            this.splitContainer1.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel1_Paint);
+            this.btnDownloadResume.Image = global::NPS.Properties.Resources.menu_resume;
+            this.btnDownloadResume.Location = new System.Drawing.Point(3, 3);
+            this.btnDownloadResume.Name = "btnDownloadResume";
+            this.btnDownloadResume.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadResume.TabIndex = 0;
+            this.btnDownloadResume.UseVisualStyleBackColor = true;
+            this.btnDownloadResume.Click += new System.EventHandler(this.resumeToolStripMenuItem_Click);
             // 
-            // splitContainer1.Panel2
+            // btnDownloadPause
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.lstDownloadStatus);
-            this.splitContainer1.Size = new System.Drawing.Size(1073, 263);
-            this.splitContainer1.SplitterDistance = 33;
-            this.splitContainer1.TabIndex = 15;
+            this.btnDownloadPause.Image = global::NPS.Properties.Resources.menu_pause;
+            this.btnDownloadPause.Location = new System.Drawing.Point(48, 3);
+            this.btnDownloadPause.Name = "btnDownloadPause";
+            this.btnDownloadPause.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadPause.TabIndex = 1;
+            this.btnDownloadPause.UseVisualStyleBackColor = true;
+            this.btnDownloadPause.Click += new System.EventHandler(this.pauseToolStripMenuItem_Click);
             // 
-            // btnDownloadResumeAll
+            // btnDownloadCancel
             // 
-            this.btnDownloadResumeAll.Image = global::NPS.Properties.Resources.menu_resume;
-            this.btnDownloadResumeAll.Location = new System.Drawing.Point(225, 2);
-            this.btnDownloadResumeAll.Margin = new System.Windows.Forms.Padding(0);
-            this.btnDownloadResumeAll.Name = "btnDownloadResumeAll";
-            this.btnDownloadResumeAll.Size = new System.Drawing.Size(93, 28);
-            this.btnDownloadResumeAll.TabIndex = 1;
-            this.btnDownloadResumeAll.Text = "Resume All";
-            this.btnDownloadResumeAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnDownloadResumeAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.btnDownloadResumeAll.UseVisualStyleBackColor = true;
-            this.btnDownloadResumeAll.Click += new System.EventHandler(this.ResumeAllBtnClick);
+            this.btnDownloadCancel.Image = global::NPS.Properties.Resources.menu_cancel;
+            this.btnDownloadCancel.Location = new System.Drawing.Point(93, 3);
+            this.btnDownloadCancel.Name = "btnDownloadCancel";
+            this.btnDownloadCancel.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadCancel.TabIndex = 2;
+            this.btnDownloadCancel.UseVisualStyleBackColor = true;
+            this.btnDownloadCancel.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
             // 
-            // btnOpenDirectory
+            // btnDownloadClear
             // 
-            this.btnOpenDirectory.Image = global::NPS.Properties.Resources.opened_folder;
-            this.btnOpenDirectory.Location = new System.Drawing.Point(183, 2);
-            this.btnOpenDirectory.Name = "btnOpenDirectory";
-            this.btnOpenDirectory.Size = new System.Drawing.Size(39, 28);
-            this.btnOpenDirectory.TabIndex = 4;
-            this.btnOpenDirectory.UseVisualStyleBackColor = true;
-            this.btnOpenDirectory.Click += new System.EventHandler(this.BtnOpenDirectory);
+            this.btnDownloadClear.Image = global::NPS.Properties.Resources.menu_clear;
+            this.btnDownloadClear.Location = new System.Drawing.Point(138, 3);
+            this.btnDownloadClear.Name = "btnDownloadClear";
+            this.btnDownloadClear.Size = new System.Drawing.Size(39, 28);
+            this.btnDownloadClear.TabIndex = 3;
+            this.btnDownloadClear.UseVisualStyleBackColor = true;
+            this.btnDownloadClear.Click += new System.EventHandler(this.clearCompletedToolStripMenuItem_Click);
             // 
             // btnDownloadPauseAll
             // 
             this.btnDownloadPauseAll.Image = global::NPS.Properties.Resources.menu_pause;
-            this.btnDownloadPauseAll.Location = new System.Drawing.Point(324, 2);
-            this.btnDownloadPauseAll.Margin = new System.Windows.Forms.Padding(0);
+            this.btnDownloadPauseAll.Location = new System.Drawing.Point(183, 3);
             this.btnDownloadPauseAll.Name = "btnDownloadPauseAll";
             this.btnDownloadPauseAll.Size = new System.Drawing.Size(93, 28);
             this.btnDownloadPauseAll.TabIndex = 0;
@@ -826,60 +830,72 @@ namespace NPS
             this.btnDownloadPauseAll.UseVisualStyleBackColor = true;
             this.btnDownloadPauseAll.Click += new System.EventHandler(this.PauseAllBtnClick);
             // 
-            // btnDownloadClear
+            // btnOpenDirectory
             // 
-            this.btnDownloadClear.Image = global::NPS.Properties.Resources.menu_clear;
-            this.btnDownloadClear.Location = new System.Drawing.Point(138, 2);
-            this.btnDownloadClear.Name = "btnDownloadClear";
-            this.btnDownloadClear.Size = new System.Drawing.Size(39, 28);
-            this.btnDownloadClear.TabIndex = 3;
-            this.btnDownloadClear.UseVisualStyleBackColor = true;
-            this.btnDownloadClear.Click += new System.EventHandler(this.clearCompletedToolStripMenuItem_Click);
+            this.btnOpenDirectory.Image = global::NPS.Properties.Resources.opened_folder;
+            this.btnOpenDirectory.Location = new System.Drawing.Point(282, 3);
+            this.btnOpenDirectory.Name = "btnOpenDirectory";
+            this.btnOpenDirectory.Size = new System.Drawing.Size(39, 28);
+            this.btnOpenDirectory.TabIndex = 4;
+            this.btnOpenDirectory.UseVisualStyleBackColor = true;
+            this.btnOpenDirectory.Click += new System.EventHandler(this.BtnOpenDirectory);
             // 
-            // btnDownloadCancel
+            // btnDownloadResumeAll
             // 
-            this.btnDownloadCancel.Image = global::NPS.Properties.Resources.menu_cancel;
-            this.btnDownloadCancel.Location = new System.Drawing.Point(93, 2);
-            this.btnDownloadCancel.Name = "btnDownloadCancel";
-            this.btnDownloadCancel.Size = new System.Drawing.Size(39, 28);
-            this.btnDownloadCancel.TabIndex = 2;
-            this.btnDownloadCancel.UseVisualStyleBackColor = true;
-            this.btnDownloadCancel.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
+            this.btnDownloadResumeAll.Image = global::NPS.Properties.Resources.menu_resume;
+            this.btnDownloadResumeAll.Location = new System.Drawing.Point(327, 3);
+            this.btnDownloadResumeAll.Name = "btnDownloadResumeAll";
+            this.btnDownloadResumeAll.Size = new System.Drawing.Size(93, 28);
+            this.btnDownloadResumeAll.TabIndex = 1;
+            this.btnDownloadResumeAll.Text = "Resume All";
+            this.btnDownloadResumeAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnDownloadResumeAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnDownloadResumeAll.UseVisualStyleBackColor = true;
+            this.btnDownloadResumeAll.Click += new System.EventHandler(this.ResumeAllBtnClick);
             // 
-            // btnDownloadPause
+            // cmbType
             // 
-            this.btnDownloadPause.Image = global::NPS.Properties.Resources.menu_pause;
-            this.btnDownloadPause.Location = new System.Drawing.Point(48, 2);
-            this.btnDownloadPause.Name = "btnDownloadPause";
-            this.btnDownloadPause.Size = new System.Drawing.Size(39, 28);
-            this.btnDownloadPause.TabIndex = 1;
-            this.btnDownloadPause.UseVisualStyleBackColor = true;
-            this.btnDownloadPause.Click += new System.EventHandler(this.pauseToolStripMenuItem_Click);
+            this.cmbType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            checkBoxProperties1.AutoSize = true;
+            checkBoxProperties1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cmbType.CheckBoxProperties = checkBoxProperties1;
+            this.cmbType.DisplayMemberSingleItem = "";
+            this.cmbType.FormattingEnabled = true;
+            this.cmbType.Location = new System.Drawing.Point(549, 3);
+            this.cmbType.Name = "cmbType";
+            this.cmbType.Size = new System.Drawing.Size(152, 21);
+            this.cmbType.TabIndex = 20;
+            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
             // 
-            // btnDownloadResume
+            // cmbRegion
             // 
-            this.btnDownloadResume.Image = global::NPS.Properties.Resources.menu_resume;
-            this.btnDownloadResume.Location = new System.Drawing.Point(3, 2);
-            this.btnDownloadResume.Margin = new System.Windows.Forms.Padding(0);
-            this.btnDownloadResume.Name = "btnDownloadResume";
-            this.btnDownloadResume.Size = new System.Drawing.Size(39, 28);
-            this.btnDownloadResume.TabIndex = 0;
-            this.btnDownloadResume.UseVisualStyleBackColor = true;
-            this.btnDownloadResume.Click += new System.EventHandler(this.resumeToolStripMenuItem_Click);
+            this.cmbRegion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            checkBoxProperties2.AutoSize = true;
+            checkBoxProperties2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cmbRegion.CheckBoxProperties = checkBoxProperties2;
+            this.cmbRegion.DisplayMemberSingleItem = "";
+            this.cmbRegion.FormattingEnabled = true;
+            this.cmbRegion.Location = new System.Drawing.Point(707, 3);
+            this.cmbRegion.MaxDropDownItems = 5;
+            this.cmbRegion.Name = "cmbRegion";
+            this.cmbRegion.Size = new System.Drawing.Size(138, 21);
+            this.cmbRegion.TabIndex = 19;
             // 
             // lstDownloadStatus
             // 
+            this.lstDownloadStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lstDownloadStatus.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colDownloadTitle,
             this.colDownloadSpeed,
             this.colDownloadStatus,
             this.colDownloadProgress});
-            this.lstDownloadStatus.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstDownloadStatus.FullRowSelect = true;
             this.lstDownloadStatus.HideSelection = false;
-            this.lstDownloadStatus.Location = new System.Drawing.Point(0, 0);
+            this.lstDownloadStatus.Location = new System.Drawing.Point(0, 37);
             this.lstDownloadStatus.Name = "lstDownloadStatus";
-            this.lstDownloadStatus.Size = new System.Drawing.Size(1073, 226);
+            this.lstDownloadStatus.Size = new System.Drawing.Size(1073, 174);
             this.lstDownloadStatus.TabIndex = 14;
             this.lstDownloadStatus.UseCompatibleStateImageBehavior = false;
             this.lstDownloadStatus.View = System.Windows.Forms.View.Details;
@@ -905,17 +921,20 @@ namespace NPS
             this.colDownloadProgress.Text = "Progress";
             this.colDownloadProgress.Width = 366;
             // 
-            // NPSBrowser
+            // BrowserForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(1085, 723);
             this.Controls.Add(this.pnlMain);
+            this.Controls.Add(statusStrip);
             this.Controls.Add(this.mnuMain);
             this.MinimumSize = new System.Drawing.Size(800, 600);
-            this.Name = "NPSBrowser";
+            this.Name = "BrowserForm";
             this.Text = "NPS Browser";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NPSBrowser_FormClosing);
-            this.Load += new System.EventHandler(this.NoPayStationBrowser_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.BrowserFormClosing);
+            this.Load += new System.EventHandler(this.BrowserFormLoad);
+            statusStrip.ResumeLayout(false);
+            statusStrip.PerformLayout();
             this.mnuMain.ResumeLayout(false);
             this.mnuMain.PerformLayout();
             this.lstTitlesMenuStrip.ResumeLayout(false);
@@ -933,13 +952,10 @@ namespace NPS
             this.splList.ResumeLayout(false);
             this.pnlSearch.ResumeLayout(false);
             this.pnlSearch.PerformLayout();
-            this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.flowLayoutPanel3.ResumeLayout(false);
+            this.flowLayoutPanelDownloads.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -964,9 +980,9 @@ namespace NPS
         private System.Windows.Forms.Button btnDownload;
         private System.Windows.Forms.RadioButton rbnGames;
         private System.Windows.Forms.RadioButton rbnDLC;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label LblContentTypeSelect;
         private System.Windows.Forms.PictureBox ptbCover;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label txtPkgInfo;
         private System.Windows.Forms.ContextMenuStrip lstDownloadStatusMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem cancelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem retryUnpackToolStripMenuItem;
@@ -987,7 +1003,7 @@ namespace NPS
         private System.Windows.Forms.ToolStripMenuItem downloadAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem downloadAllWithPatchesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem downloadAndUnpackToolStripMenuItem;
-        private System.Windows.Forms.LinkLabel lnkOpenRenaScene;
+        private System.Windows.Forms.LinkLabel lnkSearchAboutTitle;
         private System.Windows.Forms.Panel pnlMain;
         private System.Windows.Forms.SplitContainer splMain;
         private System.Windows.Forms.SplitContainer splList;
@@ -1006,11 +1022,10 @@ namespace NPS
         private PresentationControls.CheckBoxComboBox cmbType;
         private System.Windows.Forms.ColumnHeader colType;
         private System.Windows.Forms.ToolStripMenuItem showDescriptionPanelToolStripMenuItem;
-        private System.Windows.Forms.Label lb_ps3licenseType;
+        private System.Windows.Forms.Label lblPs3LicenseType;
 		private System.Windows.Forms.RadioButton rbnThemes;
 		private System.Windows.Forms.RadioButton rbnUpdates;
 		private System.Windows.Forms.RadioButton rbnAvatars;
-        private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Button btnDownloadCancel;
         private System.Windows.Forms.Button btnDownloadPause;
         private System.Windows.Forms.Button btnDownloadResume;
@@ -1027,7 +1042,10 @@ namespace NPS
         private System.Windows.Forms.RadioButton rbnUndownloaded;
         private System.Windows.Forms.RadioButton rbnAll;
         private System.Windows.Forms.ToolStripMenuItem libraryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCompPack;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDownloads;
     }
 }
 

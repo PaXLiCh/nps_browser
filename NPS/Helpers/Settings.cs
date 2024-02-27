@@ -1,20 +1,90 @@
-﻿using Microsoft.Win32;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 
-[System.Serializable]
+using NPS;
+using NPS.Data;
+
+[Serializable]
 public class Settings
 {
+    #region Constants
 
-    static Settings _i;
-    static string path = "npsSettings.dat";
+    public const string DIR_PACKAGES = "_pkgs";
+    public const string DIR_IMAGES = "_images";
+    public const string DIR_PROMOS = "_promos";
+
+    public const string DIR_APP = "app";
+    public const string DIR_ADDCONT = "addcont";
+
+    private const string path = "npsSettings.dat";
+
+    #endregion
+
+    private static Settings _i;
+
+    /// <summary>
+    /// Current loaded settings.
+    /// </summary>
+    public static Settings Instance
+    {
+        get
+        {
+            if (_i == null)
+            {
+                Load();
+            }
+            return _i;
+        }
+    }
+
+    public string GetDownloadsDirApp(Platform platform)
+    {
+        return Path.Combine(downloadDir, platform.ToString().ToUpperInvariant(), DIR_APP);
+    }
+
+    public string GetDownloadsDirAddons(Platform platform)
+    {
+        return Path.Combine(downloadDir, platform.ToString().ToUpperInvariant(), DIR_ADDCONT);
+    }
+
+    public string GetDownloadsDirPackages(Platform platform)
+    {
+        return Path.Combine(downloadDir, platform.ToString().ToUpperInvariant(), DIR_PACKAGES);
+    }
+
+    public string GetDownloadsDirImages(Platform platform)
+    {
+        return Path.Combine(downloadDir, platform.ToString().ToUpperInvariant(), DIR_IMAGES);
+    }
+
+    public string GetDownloadsDirPromos(Platform platform)
+    {
+        return Path.Combine(downloadDir, platform.ToString().ToUpperInvariant(), DIR_PROMOS);
+    }
 
     // Settings
-    public string downloadDir, pkgPath, pkgParams = "-x {pkgFile} \"{zRifKey}\"";
+    public string downloadDir;
+    [DefaultValue("pkg2zip.exe")]
+    public string unpackerPath = "pkg2zip.exe";
+    [DefaultValue("-x {pkgFile} \"{zRifKey}\"")]
+    public string unpackerParams = "-x {pkgFile} \"{zRifKey}\"";
+    [DefaultValue("psvpfsparser.exe")]
+    public string psvParserPath = "psvpfsparser.exe";
+    [DefaultValue("-i \"{pathIn}\" -o \"{pathOut}\" -z \"{zRifKey}\" -f http://cma.henkaku.xyz/")]
+    public string psvParserParams = "-i \"{pathIn}\" -o \"{pathOut}\" -z \"{zRifKey}\" -f http://cma.henkaku.xyz/";
+
     public bool deleteAfterUnpack = false;
-    public int simultaneousDl = 2;
+    public int simultaneousDl = 1;
+
+    [DefaultValue(true)]
+    public bool IsAutoDownloadImages = true;
+
+    [DefaultValue(false)]
+    public bool IsAutoDownloadPromo;
 
     // Game URIs
     public string PSVUri, PSMUri, PSXUri, PSPUri, PS3Uri, PS4Uri;
@@ -29,108 +99,50 @@ public class Settings
     public string PSVThemeUri, PSPThemeUri, PS3ThemeUri, PS4ThemeUri;
 
     public string HMACKey = "";
+
     // Update URIs
     public string PSVUpdateUri, PS4UpdateUri;
-    public List<string> selectedRegions = new List<string>(), selectedTypes = new List<string>();
+
+    public List<string> selectedRegions = new List<string>();
+
+    public List<string> selectedTypes = new List<string>();
 
     public WebProxy proxy;
+
     public History history = new History();
-    public string compPackUrl = null, compPackPatchUrl = null;
 
-    public static Settings Instance
-    {
-        get
-        {
-            if (_i == null)
-            {
-                Load();
-            }
-            return _i;
-        }
-    }
+    public string compPackUrl = null;
+    public string compPackPatchUrl = null;
 
+
+    /// <summary>
+    /// Read settings from local file.
+    /// </summary>
     public static void Load()
     {
         if (File.Exists(path))
         {
-            var stream = File.OpenRead(path);
-            var formatter = new BinaryFormatter();
-            _i = (Settings)formatter.Deserialize(stream);
-            stream.Close();
+            using (var stream = File.OpenRead(path))
+            {
+                var formatter = new BinaryFormatter();
+                _i = (Settings)formatter.Deserialize(stream);
+            }
         }
         else
         {
-            _i = ImportOldSettings();
-            if (File.Exists("history.dat"))
-            {
-                _i.history = ImportOldHistory();
-                File.Delete("history.dat");
-            }
+            _i = new Settings();
         }
     }
 
+    /// <summary>
+    /// Save current settings to local file.
+    /// </summary>
     public void Save()
     {
-        FileStream stream = File.Create(path);
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(stream, this);
-        stream.Close();
-    }
-
-    static History ImportOldHistory()
-    {
-        var stream = File.OpenRead("history.dat");
-        var formatter = new BinaryFormatter();
-        History h = (History)formatter.Deserialize(stream);
-        stream.Close();
-        return h;
-    }
-
-    static Settings ImportOldSettings()
-    {
-        Settings s = new Settings();
-
-        if (System.Type.GetType("Mono.Runtime") == null)
+        using (FileStream stream = File.Create(path))
         {
-            string keyName = Path.Combine("HKEY_CURRENT_USER", "SOFTWARE", "NoPayStationBrowser");
-
-            s.downloadDir = Registry.GetValue(keyName, "downloadDir", "")?.ToString();
-            s.pkgPath = Registry.GetValue(keyName, "pkgPath", "")?.ToString();
-            s.pkgParams = Registry.GetValue(keyName, "pkgParams", null)?.ToString();
-            if (s.pkgParams == null) s.pkgParams = "-x {pkgFile} \"{zRifKey}\"";
-            string deleteAfterUnpackString = Registry.GetValue(keyName, "deleteAfterUnpack", false)?.ToString();
-            if (!string.IsNullOrEmpty(deleteAfterUnpackString))
-                bool.TryParse(deleteAfterUnpackString, out s.deleteAfterUnpack);
-            else s.deleteAfterUnpack = true;
-            string simultanesulString = Registry.GetValue(keyName, "simultaneousDl", 2)?.ToString();
-            if (!string.IsNullOrEmpty(simultanesulString))
-                int.TryParse(simultanesulString, out s.simultaneousDl);
-            else s.simultaneousDl = 2;
-            s.PSVUri = Registry.GetValue(keyName, "GamesUri", "")?.ToString();
-            s.PSMUri = Registry.GetValue(keyName, "PSMUri", "")?.ToString();
-            s.PSXUri = Registry.GetValue(keyName, "PSXUri", "")?.ToString();
-            s.PSPUri = Registry.GetValue(keyName, "PSPUri", "")?.ToString();
-            s.PS3Uri = Registry.GetValue(keyName, "PS3Uri", "")?.ToString();
-            s.PS4Uri = Registry.GetValue(keyName, "PS4Uri", "")?.ToString();
-            s.PS3AvatarUri = Registry.GetValue(keyName, "PS3AvatarUri", "")?.ToString();
-            s.PSVDLCUri = Registry.GetValue(keyName, "DLCUri", "")?.ToString();
-            s.PSPDLCUri = Registry.GetValue(keyName, "PSPDLCUri", "")?.ToString();
-            s.PS3DLCUri = Registry.GetValue(keyName, "PS3DLCUri", "")?.ToString();
-            s.PS4DLCUri = Registry.GetValue(keyName, "PS4DLCUri", "")?.ToString();
-            s.PSVThemeUri = Registry.GetValue(keyName, "ThemeUri", "")?.ToString();
-            s.PSPThemeUri = Registry.GetValue(keyName, "PSPThemeUri", "")?.ToString();
-            s.PS3ThemeUri = Registry.GetValue(keyName, "PS3ThemeUri", "")?.ToString();
-            s.PS4ThemeUri = Registry.GetValue(keyName, "PS4ThemeUri", "")?.ToString();
-            s.PSVUpdateUri = Registry.GetValue(keyName, "UpdateUri", "")?.ToString();
-            s.PS4UpdateUri = Registry.GetValue(keyName, "PS4UpdateUri", "")?.ToString();
+            var formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
         }
-
-        return s;
     }
-
-
 }
-
-
-
-

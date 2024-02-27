@@ -1,31 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NPS
 {
-    public partial class CompPack : Form
+    public partial class CompPackForm : Form
     {
-        NPSBrowser mainForm;
-        Item item;
         public static bool compPackChanged = false;
-        static List<CompPackItem> compPackList = null;
 
-        Action<Item[]> finalresult;
+        private readonly Item _item;
+        private readonly Action<Item[]> _finalresult;
 
-        public CompPack(NPSBrowser mainForm, Item item, Action<Item[]> result)
+        private static List<CompPackItem> compPackList = null;
+
+        public CompPackForm(Item item, Action<Item[]> result)
         {
             InitializeComponent();
-            this.mainForm = mainForm;
-            this.item = item;
-            this.finalresult = result;
+            _item = item;
+            _finalresult = result;
         }
 
         private void CompPack_Load(object sender, EventArgs e)
@@ -36,40 +30,44 @@ namespace NPS
                 {
                     compPackChanged = false;
                     compPackList = LoadCompPacks(Settings.Instance.compPackUrl);
-                    //   Settings.Instance.compPackPatchUrl = "";
+                    //Settings.Instance.compPackPatchUrl = "";
                     if (!string.IsNullOrEmpty(Settings.Instance.compPackPatchUrl))
+                    {
                         compPackList.AddRange(LoadCompPacks(Settings.Instance.compPackPatchUrl));
+                    }
                 }
 
                 List<CompPackItem> result = new List<CompPackItem>();
                 foreach (var cp in compPackList)
-                    if (cp.titleId.Equals(item.TitleId))
+                {
+                    if (cp.titleId.Equals(_item.TitleId))
                     {
                         result.Add(cp);
                         comboBox1.Items.Add(cp);
                     }
+                }
 
                 if (result.Count == 0)
                 {
                     MessageBox.Show("No comp pack found");
-                    this.Close();
+                    Close();
                 }
             }
             catch (Exception er)
             {
                 MessageBox.Show(er.Message);
-                this.Close();
+                Close();
             }
-
-
         }
 
-        List<CompPackItem> LoadCompPacks(string url)
+        private List<CompPackItem> LoadCompPacks(string url)
         {
             List<CompPackItem> list = new List<CompPackItem>();
-            WebClient wc = new WebClient();
-            wc.Proxy = Settings.Instance.proxy;
-            wc.Encoding = Encoding.UTF8;
+            WebClient wc = new WebClient
+            {
+                Proxy = Settings.Instance.proxy,
+                Encoding = Encoding.UTF8
+            };
             string content = wc.DownloadString(new Uri(url));
             wc.Dispose();
             content = Encoding.UTF8.GetString(Encoding.Default.GetBytes(content));
@@ -82,7 +80,6 @@ namespace NPS
             }
 
             return list;
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -91,10 +88,10 @@ namespace NPS
 
             List<Item> res = new List<Item>();
 
-            CompPackItem cpi = (comboBox1.SelectedItem as CompPackItem);
+            CompPackItem cpi = comboBox1.SelectedItem as CompPackItem;
             if (!cpi.ver.Equals("01.00"))
             {
-                var cpiBase = (comboBox1.Items[0] as CompPackItem);
+                var cpiBase = comboBox1.Items[0] as CompPackItem;
                 if (cpiBase.ver.Equals("01.00"))
                 {
                     res.Add(cpiBase.ToItem());
@@ -102,57 +99,55 @@ namespace NPS
             }
             res.Add(cpi.ToItem());
 
-
-
-
-            finalresult.Invoke(res.ToArray());
-            this.Close();
+            _finalresult.Invoke(res.ToArray());
+            Close();
             //DownloadWorker dw = new DownloadWorker(itm, mainForm);
             //dw.Start();
         }
     }
 
-    class CompPackItem
+    public class CompPackItem
     {
-
-        public CompPackItem(string unparsedRow)
-        {
-            var t = unparsedRow.Split('=');
-            this.url = t[0];
-            this.title = t[1];
-            t = t[0].Split('/');
-            this.titleId = t[t.Length - 2];
-            this.ver = t[t.Length - 1].Split('-')[2].Replace("_", ".");/*.Replace(".ppk", "")*/;
-
-        }
         public string titleId;
         public string ver;
         public string title;
         public string url;
 
+        public CompPackItem(string unparsedRow)
+        {
+            var t = unparsedRow.Split('=');
+            url = t[0];
+            title = t[1];
+            t = t[0].Split('/');
+            titleId = t[t.Length - 2];
+            ver = t[t.Length - 1].Split('-')[2].Replace("_", ".");/*.Replace(".ppk", "")*/;
+
+        }
+
         public override string ToString()
         {
-            return "ver: " + this.ver + " " + this.title;
+            return $"ver: {ver} {title}";
         }
 
         public Item ToItem()
         {
-            Item i = new Item();
-            i.ItsCompPack = true;
-            i.TitleId = this.titleId;
+            Item i = new Item
+            {
+                ItsCompPack = true,
+                TitleId = titleId,
+                TitleName = title + " CompPack_" + ver
+            };
 
-            i.TitleName = this.title + " CompPack_" + this.ver; ;
             var urlArr = Settings.Instance.compPackUrl.Split('/');
 
-            string url = "";
-            for (int c = 0; c < urlArr.Length - 1; c++)
+            StringBuilder urlWithCompPack = new StringBuilder();
+            foreach (var urlPart in urlArr)
             {
-                url += urlArr[c] + "/";
+                urlWithCompPack.Append(urlPart).Append('/');
             }
-            url += this.url;
-            //string url = Settings.Instance.compPackUrl.Replace("entries.txt", this.url);
-            i.pkg = url;
-
+            urlWithCompPack.Append(url);
+            //string url = Settings.Instance.compPackUrl.Replace("entries.txt", url);
+            i.pkg = urlWithCompPack.ToString();
 
             return i;
         }

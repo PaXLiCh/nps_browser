@@ -249,7 +249,7 @@ namespace PresentationControls
             if (location.X + Size.Width > (screen.Left + screen.Width))
             {
                 resizableRight = true;
-                location.X = (screen.Left + screen.Width) - Size.Width;
+                location.X = screen.Left + screen.Width - Size.Width;
             }
             if (location.Y + Size.Height > (screen.Top + screen.Height))
             {
@@ -493,7 +493,7 @@ namespace PresentationControls
         /// <summary>
         /// Paints the size grip.
         /// </summary>
-        /// <param name="e">The <see cref="System.Windows.Forms.PaintEventArgs" /> instance containing the event data.</param>
+        /// <param name="e">The <see cref="PaintEventArgs" /> instance containing the event data.</param>
         public void PaintSizeGrip(PaintEventArgs e)
         {
             if (e == null || e.Graphics == null || !resizable)

@@ -2,48 +2,65 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
 
+using NPS.Data;
+using NPS.Helpers;
+
 namespace NPS
 {
     /// <summary>
     /// Form of library for downloaded titles.
     /// </summary>
-    public partial class Library : Form
+    public partial class LibraryForm : Form
     {
+        private class LibraryItem
+        {
+            public Item itm;
+            public bool isPkg = false;
+            public string path;
+        }
+
         private readonly List<Item> db;
 
         private readonly List<string> file_list = new List<string>();
 
         private const string PKG_EXTENSION = "*.pkg";
-        private const string DIR_APP = "app";
-        private const string DIR_PACKAGES = "packages";
-        private const string DIR_ADDCONT = "addcont";
 
         private Task _imagesDownloadTask;
+        private readonly List<Item> imagesToLoad = new List<Item>();
 
-        public Library(List<Item> db)
+        public LibraryForm()
         {
             InitializeComponent();
-            this.db = db;
+            db = Database.Instance.Apps;
         }
 
-        private void Library_Load(object sender, EventArgs e)
+        private void LibraryFormLoad(object sender, EventArgs e)
         {
             lvDownloaded.Items.Clear();
             lvCopy.Items.Clear();
 
-            label1.Text = Settings.Instance.downloadDir;
+            LblDownloadsRootPath.Text = Settings.Instance.downloadDir;
 
+            FindTitlesPerPlatform(Platform.PSP);
+            FindTitlesPerPlatform(Platform.PSV);
+            FindTitlesPerPlatform(Platform.PS3);
+            FindTitlesPerPlatform(Platform.PS4);
+            FindTitlesPerPlatform(Platform.PSM);
+            FindTitlesPerPlatform(Platform.PSX);
+
+            DownloadImages(imagesToLoad);
+        }
+
+        private void FindTitlesPerPlatform(Platform platform)
+        {
             string[] apps = new string[0];
             string[] dlcs = new string[0];
 
@@ -62,9 +79,9 @@ namespace NPS
             // List downloaded content
             List<string> files = Directory.GetFiles(Settings.Instance.downloadDir, PKG_EXTENSION).ToList();
 
-            var pathPackagesDir = Path.Combine(Settings.Instance.downloadDir, DIR_PACKAGES);
-            var pathAppDir = Path.Combine(Settings.Instance.downloadDir, DIR_APP);
-            var pathAddcontDir = Path.Combine(Settings.Instance.downloadDir, DIR_ADDCONT);
+            var pathPackagesDir = Settings.Instance.GetDownloadsDirPackages(platform);
+            var pathAppDir = Settings.Instance.GetDownloadsDirApp(platform);
+            var pathAddcontDir = Settings.Instance.GetDownloadsDirAddons(platform);
 
             if (Directory.Exists(pathPackagesDir))
             {
@@ -81,8 +98,7 @@ namespace NPS
                 dlcs = Directory.GetDirectories(pathAddcontDir);
             }
 
-            List<string> imagesToLoad = new List<string>();
-
+            // List of packed PKGs
             foreach (string filePath in files)
             {
                 var fileName = Path.GetFileNameWithoutExtension(filePath);
@@ -90,21 +106,15 @@ namespace NPS
                 bool found = false;
                 foreach (var itm in db)
                 {
-                    if (fileName.Equals(itm.DownloadFileName))
+                    if (fileName.Equals(itm.PackageFileName))
                     {
                         ListViewItem lvi = new ListViewItem(itm.TitleName + " (PKG)");
 
                         lvDownloaded.Items.Add(lvi);
 
-                        foreach (var r in NPCache.I.renasceneCache)
-                        {
-                            if (itm.Equals(r.itm))
-                            {
-                                imagesToLoad.Add(r.imgUrl);
-                                lvi.ImageKey = r.imgUrl;
-                                break;
-                            }
-                        }
+                        imagesToLoad.Add(itm);
+                        lvi.ImageKey = itm.ContentId;
+
                         LibraryItem item = new LibraryItem
                         {
                             itm = itm,
@@ -132,6 +142,7 @@ namespace NPS
                 }
             }
 
+            // List of unpacked APPs
             foreach (string appPath in apps)
             {
                 string titleId = Path.GetFullPath(appPath).TrimEnd(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar).Last();
@@ -139,7 +150,7 @@ namespace NPS
                 bool found = false;
                 foreach (var itm in db)
                 {
-                    if (itm.IsDLC)
+                    if (itm.ContentType != ContentType.APP)
                     {
                         continue;
                     }
@@ -149,15 +160,9 @@ namespace NPS
 
                         lvDownloaded.Items.Add(lvi);
 
-                        foreach (var r in NPCache.I.renasceneCache)
-                        {
-                            if (itm.Equals(r.itm))
-                            {
-                                imagesToLoad.Add(r.imgUrl);
-                                lvi.ImageKey = r.imgUrl;
-                                break;
-                            }
-                        }
+                        imagesToLoad.Add(itm);
+                        lvi.ImageKey = itm.ContentId;
+
                         LibraryItem library = new LibraryItem
                         {
                             itm = itm,
@@ -185,58 +190,83 @@ namespace NPS
                 }
             }
 
-            //foreach (string s in dlcs)
-            //{
-            //    string d = Path.GetFullPath(s).TrimEnd(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar).Last();
-            //    foreach (var itm in db)
-            //    {
-            //        if (itm.IsDLC && itm.TitleId.Equals(d))
-            //        {
-            //            ListViewItem lvi = new ListViewItem(itm.TitleName);
+            // List of unpacked DLCs
+            foreach (string dlcPath in dlcs)
+            {
+                string dlcId = Path.GetFullPath(dlcPath).TrimEnd(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar).Last();
+                foreach (var itm in Database.Instance.DLCs)
+                {
+                    if (itm.ContentType != ContentType.DLC)
+                    {
+                        continue;
+                    }
+                    if (itm.TitleId.Equals(dlcId))
+                    {
+                        ListViewItem lvi = new ListViewItem(itm.TitleName);
 
-            //            listView1.Items.Add(lvi);
+                        lvDownloaded.Items.Add(lvi);
 
-            //            foreach (var r in NPCache.I.renasceneCache)
-            //                if (itm == r.itm)
-            //                {
-            //                    imagesToLoad.Add(r.imgUrl);
-            //                    lvi.ImageKey = r.imgUrl;
-            //    break;
-            //                }
-            //            LibraryItem library = new LibraryItem();
-            //            library.itm = itm;
-            //            library.patch = s;
-            //            library.isPkg = false;
-            //            lvi.Tag = library;
-            //break;
-            //        }
-            //    }
-            //}
+                        imagesToLoad.Add(itm);
+                        lvi.ImageKey = itm.ContentId;
 
-            DownloadImages(imagesToLoad);
+                        LibraryItem library = new LibraryItem
+                        {
+                            itm = itm,
+                            path = dlcPath,
+                            isPkg = false
+                        };
+                        lvi.Tag = library;
+                        break;
+                    }
+                }
+            }
         }
 
-        private void DownloadImages([NotNull] List<string> images)
+        private void DownloadImages([NotNull] List<Item> images)
         {
             Task downloader = new Task(() =>
             {
-                foreach (string url in images)
+                foreach (var itm in images)
                 {
-                    WebClient wc = new WebClient
+                    System.Drawing.Image image = null;
+                    var path = Path.Combine(itm.ImagesDir, "2.png");
+                    if (File.Exists(path))
                     {
-                        Proxy = Settings.Instance.proxy,
-                        Encoding = Encoding.UTF8
-                    };
-                    var img = wc.DownloadData(url);
-                    using (var ms = new MemoryStream(img))
-                    {
-                        Image image = Image.FromStream(ms);
-                        image = GetThumb(image);
-                        Invoke(new Action(() =>
-                        {
-                            imageList1.Images.Add(url, image);
-                        }));
+                        image = System.Drawing.Image.FromFile(path);
                     }
+                    else
+                    {
+                        path = Path.Combine(itm.ImagesDir, "1.png");
+                        if (File.Exists(path))
+                        {
+                            image = System.Drawing.Image.FromFile(path);
+                            image = Utils.GetThumb(image);
+                        }
+                    }
+
+                    // TODO: download images
+                    /*if (image == null)
+                    {
+                        WebClient wc = new WebClient
+                        {
+                            Proxy = Settings.Instance.proxy,
+                            Encoding = Encoding.UTF8
+                        };
+                        var img = wc.DownloadData(titleId);
+                        using (var ms = new MemoryStream(img))
+                        {
+                            image = Image.FromStream(ms);
+                            //image = Utils.GetThumb(image);
+                        }
+                    }*/
+                    if (image == null)
+                    {
+                        continue;
+                    }
+                    Invoke(new Action(() =>
+                    {
+                        imageList1.Images.Add(itm.ContentId, image);
+                    }));
                 }
             });
             if (_imagesDownloadTask != null && ((int)_imagesDownloadTask.Status < 4))
@@ -254,36 +284,6 @@ namespace NPS
             }
         }
 
-        public Bitmap GetThumb(Image image)
-        {
-            int tw, th, tx, ty;
-            int w = image.Width;
-            int h = image.Height;
-            double whRatio = (double)w / h;
-
-            if (image.Width >= image.Height)
-            {
-                tw = 100;
-                th = (int)(tw / whRatio);
-            }
-            else
-            {
-                th = 100;
-                tw = (int)(th * whRatio);
-            }
-            tx = (100 - tw) / 2;
-            ty = (100 - th) / 2;
-            Bitmap thumb = new Bitmap(100, 100, PixelFormat.Format24bppRgb);
-            Graphics g = Graphics.FromImage(thumb);
-            g.Clear(Color.White);
-            g.InterpolationMode = InterpolationMode.NearestNeighbor;
-            g.DrawImage(image,
-            new Rectangle(tx, ty, tw, th),
-            new Rectangle(0, 0, w, h),
-            GraphicsUnit.Pixel);
-            return thumb;
-        }
-
         private void BtnOpenDirectoryClick(object sender, EventArgs e)
         {
             if (lvDownloaded.SelectedItems.Count == 0) return;
@@ -294,15 +294,20 @@ namespace NPS
         private void BtnDeleteFromListClick(object sender, EventArgs e)
         {
             if (lvDownloaded.SelectedItems.Count == 0) return;
-            var itm = (lvDownloaded.SelectedItems[0].Tag as LibraryItem);
+            var itm = lvDownloaded.SelectedItems[0].Tag as LibraryItem;
 
             try
             {
                 if (itm.isPkg)
+                {
                     File.Delete(itm.path);
-                else Directory.Delete(itm.path, true);
+                }
+                else
+                {
+                    Directory.Delete(itm.path, true);
+                }
 
-                Library_Load(null, null);
+                LibraryFormLoad(null, null);
             }
             catch (Exception err)
             {
@@ -313,7 +318,7 @@ namespace NPS
         private void BtnUnpackPackageClick(object sender, EventArgs e)
         {
             if (lvDownloaded.SelectedItems.Count == 0) return;
-            var itm = (lvDownloaded.SelectedItems[0].Tag as LibraryItem);
+            var itm = lvDownloaded.SelectedItems[0].Tag as LibraryItem;
             if (itm.isPkg == false) return;
             if (itm.itm == null)
             {
@@ -323,7 +328,7 @@ namespace NPS
 
             var pathToUnpack = Path.Combine(Settings.Instance.downloadDir, Path.GetFileName(itm.path));
 
-            if (itm.itm.ItsPS3 && itm.path.ToLower().Contains(DIR_PACKAGES))
+            if ((itm.itm.Platform == Platform.PS3) && itm.path.ToLower().Contains(Settings.DIR_PACKAGES))
             {
                 File.Move(itm.path, pathToUnpack);
             }
@@ -335,13 +340,13 @@ namespace NPS
         private void ListViewDownloadedSelectedIndexChanged(object sender, EventArgs e)
         {
             if (lvDownloaded.SelectedItems.Count == 0) return;
-            var itm = (lvDownloaded.SelectedItems[0].Tag as LibraryItem);
+            var itm = lvDownloaded.SelectedItems[0].Tag as LibraryItem;
             btnUnpackPackage.Enabled = itm.isPkg;
         }
 
         private void BtnListRefreshClick(object sender, EventArgs e)
         {
-            Library_Load(null, null);
+            LibraryFormLoad(null, null);
         }
 
         private void BtnAddCopyToListClick(object sender, EventArgs e)
@@ -349,11 +354,11 @@ namespace NPS
             if (lvDownloaded.SelectedItems.Count == 0) return;
             string path = (lvDownloaded.SelectedItems[0].Tag as LibraryItem).path;
             //System.Diagnostics.Process.Start("explorer.exe", "/select, " + path);
-            // List<string>  file_list = new List<string>();
+            //List<string> file_list = new List<string>();
             
             /*
-            foreach (string file_name in Directory.GetFiles(path)){ 
-
+            foreach (string file_name in Directory.GetFiles(path))
+            {
                 file_list.Add(file_name);
             } 
             foreach (string file_name in Directory.GetDirectories(path))
@@ -361,13 +366,8 @@ namespace NPS
                 file_list.Add(file_name);
             }*/
             file_list.Add(path);
-           lvCopy.Items.Add(lvDownloaded.SelectedItems[0].Text);
+            lvCopy.Items.Add(lvDownloaded.SelectedItems[0].Text);
             Clipboard.SetData(DataFormats.FileDrop, file_list.ToArray());
-        }
-
-        private void listView2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Do nothing
         }
 
         private void BtnClearCopyListClick(object sender, EventArgs e)
@@ -375,12 +375,6 @@ namespace NPS
             lvCopy.Items.Clear();
             Clipboard.Clear();
         }
-    }
 
-    class LibraryItem
-    {
-        public Item itm;
-        public bool isPkg = false;
-        public string path;
-    }
-}
+    } // LibraryForm
+} // namespace

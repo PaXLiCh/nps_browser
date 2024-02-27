@@ -1,6 +1,6 @@
 ﻿namespace NPS
 {
-    partial class Desc
+    partial class ContentInfoForm
     {
         /// <summary>
         /// Required designer variable.
@@ -118,7 +118,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Name = "Desc";
             this.Text = "Description";
-            this.Load += new System.EventHandler(this.Desc_Load);
+            this.Load += new System.EventHandler(this.ContentInfoFormLoad);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();

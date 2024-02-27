@@ -1,6 +1,6 @@
 ﻿namespace NPS
 {
-    partial class GamePatches
+    partial class PatchForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.BtnDownload = new System.Windows.Forms.Button();
+            this.BtnCancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // webBrowser1
@@ -48,36 +48,36 @@
             this.webBrowser1.TabIndex = 1;
             this.webBrowser1.WebBrowserShortcutsEnabled = false;
             // 
-            // button1
+            // BtnDownload
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.button1.Location = new System.Drawing.Point(106, 236);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(195, 23);
-            this.button1.TabIndex = 2;
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.BtnDownload.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.BtnDownload.Location = new System.Drawing.Point(106, 236);
+            this.BtnDownload.Name = "BtnDownload";
+            this.BtnDownload.Size = new System.Drawing.Size(195, 23);
+            this.BtnDownload.TabIndex = 2;
+            this.BtnDownload.UseVisualStyleBackColor = true;
+            this.BtnDownload.Click += new System.EventHandler(this.BtnDownloadClick);
             // 
-            // button2
+            // BtnCancel
             // 
-            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.button2.Location = new System.Drawing.Point(331, 236);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(195, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.BtnCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.BtnCancel.Location = new System.Drawing.Point(331, 236);
+            this.BtnCancel.Name = "BtnCancel";
+            this.BtnCancel.Size = new System.Drawing.Size(195, 23);
+            this.BtnCancel.TabIndex = 3;
+            this.BtnCancel.Text = "Cancel";
+            this.BtnCancel.UseVisualStyleBackColor = true;
+            this.BtnCancel.Click += new System.EventHandler(this.BtnCancelClick);
             // 
-            // GamePatches
+            // PatchesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(658, 271);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.BtnCancel);
+            this.Controls.Add(this.BtnDownload);
             this.Controls.Add(this.webBrowser1);
-            this.Name = "GamePatches";
+            this.Name = "PatchesForm";
             this.Text = "Update";
             this.ResumeLayout(false);
 
@@ -85,7 +85,7 @@
 
         #endregion
         private System.Windows.Forms.WebBrowser webBrowser1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button BtnDownload;
+        private System.Windows.Forms.Button BtnCancel;
     }
 }

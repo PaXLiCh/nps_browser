@@ -9,52 +9,50 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Compression;
+using NPS.Helpers;
 
 namespace NPS
 {
-    enum EPkgType
-    {
-        PKG_TYPE_VITA_APP,
-        PKG_TYPE_VITA_DLC,
-        PKG_TYPE_VITA_PATCH,
-        PKG_TYPE_VITA_PSM,
-        PKG_TYPE_VITA_THEME,
-        PKG_TYPE_PSP,
-        PKG_TYPE_PSP_DLC,
-        PKG_TYPE_PSP_UPDATE,
-        PKG_TYPE_PSP_THEME,
-        PKG_TYPE_PSX,
-        PKG_TYPE_PS3_GAME,
-        PKG_TYPE_PS3_DLC,
-        PKG_TYPE_PS3_DEMO,
-        PKG_TYPE_PS3_THEME,
-        PKG_TYPE_PS3_AVATAR,
-        PKG_TYPE_UNKNOWN,
-    }
-
-    [System.Serializable]
+    [Serializable]
     public class DownloadWorker
     {
-        public Item currentDownload;
         //private WebClient webClient;
         private DateTime lastUpdate;
         private long lastBytes;
-        [System.NonSerialized]
+
+        private string pkgOutputPath;
+
+        private long totalSize = 0;
+        private long completedSize = 0;
+        private long _downloadSpeed = 0;
+
+        [NonSerialized]
         public ProgressBar progress = new ProgressBar();
+
+        [NonSerialized]
+        private Process _unpackProcess = null;
+
+        [NonSerialized]
+        private Timer timer = new Timer();
+
+        [NonSerialized]
+        private Form formCaller;
+
+        [NonSerialized]
+        private Stream smRespStream;
+
+        [NonSerialized]
+        private FileStream saveFileStream;
+
+        [NonSerialized]
+        private readonly List<string> _errors = new List<string>();
+
+        public Item currentDownload;
         public ListViewItem lvi;
         public int progressValue = 0;
-        private EPkgType pkgType;
-        private string pkgOutputPath;
-        private string pkgOutputDirectory;
-        //public bool isRunning { get; private set; }
-        //public bool isCompleted { get; private set; }
-        //public bool isCanceled { get; private set; }
+        public WorkerStatus Status { get; private set; }
+        public string Pkg => pkgOutputPath;
 
-        public WorkerStatus status { get; private set; }
-        [System.NonSerialized]
-        Timer timer = new Timer();
-        [System.NonSerialized]
-        Form formCaller;
 
         public DownloadWorker(Item itm, Form f)
         {
@@ -64,14 +62,11 @@ namespace NPS
             lvi.SubItems.Add("");
             lvi.SubItems.Add("");
             lvi.Tag = this;
-            //isRunning = false;
-            //isCanceled = false;
-            //isCompleted = false;
 
             timer.Interval = 1000;
             timer.Tick += Timer_Tick;
             formCaller = f;
-            status = WorkerStatus.Queued;
+            Status = WorkerStatus.Queued;
         }
 
         public void Recreate(Form formCaller)
@@ -80,138 +75,41 @@ namespace NPS
             progress = new ProgressBar();
             if (progressValue > 100) progressValue = 100;
             progress.Value = progressValue;
-            timer = new Timer();
-            timer.Interval = 1000;
+            timer = new Timer
+            {
+                Interval = 1000
+            };
             timer.Tick += Timer_Tick;
             lvi.Tag = this;
 
-            if (status == WorkerStatus.Running)
+            if (Status == WorkerStatus.Running)
+            {
                 Start();
-            else if (this.status == WorkerStatus.Downloaded)
+            }
+            else if (Status == WorkerStatus.Downloaded)
             {
                 Unpack();
             }
-            else if (this.status == WorkerStatus.Completed)
+            else if (Status == WorkerStatus.Completed)
             {
                 lvi.SubItems[1].Text = "";
                 lvi.SubItems[2].Text = "Completed";
             }
         }
 
-        private EPkgType GetPackageType(Item item)
-        {
-            if( item.ItsPS3 )
-            {
-                if( item.IsDLC )
-                    return EPkgType.PKG_TYPE_PS3_DLC;
-                else if( item.IsTheme )
-                    return EPkgType.PKG_TYPE_PS3_THEME;
-                else if( item.IsAvatar )
-                    return EPkgType.PKG_TYPE_PS3_AVATAR;
-                else // Game
-                    return EPkgType.PKG_TYPE_PS3_GAME;
-            }
-            else if( item.ItsPS4 )
-                return EPkgType.PKG_TYPE_UNKNOWN;
-            else if( item.ItsPsp )
-            {
-                if( item.IsDLC )
-                    return EPkgType.PKG_TYPE_PSP_DLC;
-                else if( item.IsTheme )
-                    return EPkgType.PKG_TYPE_PSP_THEME;
-                else if( item.IsUpdate )
-                    return EPkgType.PKG_TYPE_PSP_UPDATE;
-                else // Game
-                    return EPkgType.PKG_TYPE_PSP;
-            }
-            else if( item.ItsPsx )
-                return EPkgType.PKG_TYPE_PSX;
-            else // PS Vita
-            {
-                if( item.IsDLC )
-                    return EPkgType.PKG_TYPE_VITA_DLC;
-                else if( item.IsTheme )
-                    return EPkgType.PKG_TYPE_VITA_THEME;
-                else if( item.IsUpdate )
-                    return EPkgType.PKG_TYPE_VITA_PATCH;
-                else // Game
-                    return EPkgType.PKG_TYPE_VITA_APP;
-            }
-        }
-
-        private void SetDownloadOutputDirectory()
-        {
-            string relDir = "";
-            switch( pkgType )
-            {
-                case EPkgType.PKG_TYPE_VITA_APP:
-                    relDir = "Pkg\\PSV\\APP";
-                    break;
-                case EPkgType.PKG_TYPE_VITA_DLC:
-                    relDir = "Pkg\\PSV\\DLC";
-                    break;
-                case EPkgType.PKG_TYPE_VITA_PATCH:
-                    relDir = "Pkg\\PSV\\PATCH";
-                    break;
-                case EPkgType.PKG_TYPE_VITA_PSM:
-                    relDir = "Pkg\\PSV\\PSM";
-                    break;
-                case EPkgType.PKG_TYPE_VITA_THEME:
-                    relDir = "Pkg\\PSV\\THEME";
-                    break;
-                case EPkgType.PKG_TYPE_PSP:
-                    relDir = string.Format("PSP\\{0}\\PKG", currentDownload.TitleId);
-                    break;
-                case EPkgType.PKG_TYPE_PSP_DLC:
-                    relDir = string.Format("PSP\\{0}\\PKG\\DLC", currentDownload.TitleId);
-                    break;
-                case EPkgType.PKG_TYPE_PSP_UPDATE:
-                    relDir = string.Format( "PSP\\{0}\\PKG\\UPDATE", currentDownload.TitleId);
-                    break;
-                case EPkgType.PKG_TYPE_PSP_THEME:
-                    relDir = "PSP\\THEME\\PKG";
-                    break;
-                case EPkgType.PKG_TYPE_PSX:
-                    relDir = string.Format( "PSX\\{0}\\PKG", currentDownload.TitleId );
-                    break;
-                case EPkgType.PKG_TYPE_PS3_GAME:
-                    relDir = string.Format( "PS3\\{0}\\packages", currentDownload.TitleId );
-                    break;
-                case EPkgType.PKG_TYPE_PS3_DLC:
-                    relDir = string.Format( "PS3\\{0}\\packages", currentDownload.TitleId );
-                    break;
-                case EPkgType.PKG_TYPE_PS3_DEMO:
-                    relDir = string.Format( "PS3\\DEMO\\{0}\\packages", currentDownload.TitleId );
-                    break;
-                case EPkgType.PKG_TYPE_PS3_THEME:
-                    relDir = "PS3\\THEME\\PKG";
-                    break;
-                case EPkgType.PKG_TYPE_PS3_AVATAR:
-                    relDir = "PS3\\AVATAR\\PKG";
-                    break;
-                case EPkgType.PKG_TYPE_UNKNOWN:
-                    relDir = "Pkg\\UNKNOWN";
-                    break;
-                default:
-                    relDir = "Pkg\\UNKNOWN";
-                    break;
-            }
-            pkgOutputDirectory = Path.Combine( Settings.Instance.downloadDir, relDir );
-            pkgOutputPath = Path.Combine( pkgOutputDirectory, currentDownload.DownloadFileName + currentDownload.extension );
-        }
-
-
         public void Start()
         {
-            Console.WriteLine("start process " + currentDownload.TitleName);
+            Console.WriteLine("Start downloading {0}", currentDownload.TitleName);
             timer.Start();
-            //isRunning = true;
-            status = WorkerStatus.Running;
 
-            pkgType = GetPackageType( currentDownload );
-            SetDownloadOutputDirectory();
-            if ( !Directory.Exists(pkgOutputDirectory) )
-                Directory.CreateDirectory( pkgOutputDirectory );
+            Status = WorkerStatus.Running;
+
+            string pkgOutputDirectory = Path.Combine(Settings.Instance.downloadDir, currentDownload.PkgsDir);
+            pkgOutputPath = Path.Combine(pkgOutputDirectory, currentDownload.PackageFileName + currentDownload.PackageFileExtension);
+            if (!Directory.Exists(pkgOutputDirectory))
+            {
+                Directory.CreateDirectory(pkgOutputDirectory);
+            }
 
             Task.Run(() =>
             {
@@ -222,17 +120,15 @@ namespace NPS
         public void Cancel()
         {
             timer.Stop();
-            if (status == WorkerStatus.Completed) return;
+            if (Status == WorkerStatus.Completed) return;
 
-            status = WorkerStatus.Canceled;
+            Status = WorkerStatus.Canceled;
 
-            if (smRespStream != null)
-                smRespStream.Close();
-            if (saveFileStream != null)
-                saveFileStream.Close();
-            if (unpackProcess != null && !unpackProcess.HasExited)
+            smRespStream?.Close();
+            saveFileStream?.Close();
+            if (_unpackProcess != null && !_unpackProcess.HasExited)
             {
-                unpackProcess.Kill();
+                _unpackProcess.Kill();
             }
 
             lvi.SubItems[1].Text = "";
@@ -244,259 +140,281 @@ namespace NPS
 
         public void Pause()
         {
-
-            if (status == WorkerStatus.Running || status == WorkerStatus.Queued)
+            if (Status != WorkerStatus.Running && Status != WorkerStatus.Queued)
             {
-                timer.Stop();
-
-                status = WorkerStatus.Paused;
-
-                if (smRespStream != null)
-                {
-                    smRespStream.Close();
-                }
-                if (saveFileStream != null)
-                    saveFileStream.Close();
-                if (unpackProcess != null && !unpackProcess.HasExited)
-                {
-                    unpackProcess.Kill();
-                }
-
-                lvi.SubItems[1].Text = "Paused";
+                return;
             }
+            timer.Stop();
+
+            Status = WorkerStatus.Paused;
+
+            smRespStream?.Close();
+            saveFileStream?.Close();
+            if (_unpackProcess != null && !_unpackProcess.HasExited)
+            {
+                _unpackProcess.Kill();
+            }
+
+            lvi.SubItems[1].Text = "Paused";
             //progress.Value = 0;
         }
 
         public void Resume()
         {
-            if (status == WorkerStatus.Paused || status == WorkerStatus.DownloadError)
+            if (Status != WorkerStatus.Paused && Status != WorkerStatus.DownloadError)
             {
-                lvi.SubItems[1].Text = "Queued";
-                status = WorkerStatus.Queued;
+                return;
             }
+            lvi.SubItems[1].Text = "Queued";
+            Status = WorkerStatus.Queued;
         }
-        public string Pkg { get { return pkgOutputPath; } }
 
         public void DeletePkg()
         {
-            if (currentDownload != null)
+            if (currentDownload == null)
             {
-                for (int i = 0; i < 1; i++)
+                return;
+            }
+            for (int i = 0; i < 1; ++i)
+            {
+                try
                 {
-                    try
+                    if (File.Exists(pkgOutputPath))
                     {
-                        if (File.Exists( pkgOutputPath ))
-                        {
-                            System.Threading.Thread.Sleep(400);
-                            File.Delete( pkgOutputPath );
-                        }
+                        System.Threading.Thread.Sleep(400);
+                        File.Delete(pkgOutputPath);
                     }
-                    catch { i = 5; }
                 }
+                catch { i = 5; }
             }
         }
 
-        [System.NonSerialized]
-        Process unpackProcess = null;
         public void Unpack()
         {
-            if (currentDownload.ItsPS3)
+            if (currentDownload.Platform == Platform.PS3)
             {
                 UnpackPS3();
                 return;
             }
+
             if (currentDownload.ItsCompPack)
             {
                 UnpackCompPack();
                 return;
             }
 
-            if (this.status == WorkerStatus.Downloaded || this.status == WorkerStatus.Completed)
+            if (Status != WorkerStatus.Downloaded && Status != WorkerStatus.Completed)
             {
-                lvi.SubItems[2].Text = "Unpacking";
-
-                string tempName = "";
-                string dlc = "";
-                if (currentDownload.IsDLC == true)
-                {
-                    //dlc = "[DLC]";
-                    tempName = "[DLC] " + currentDownload.ParentGameTitle;
-                }
-                else tempName = currentDownload.TitleName;
-
-                string fwVersion = "3.60";
-                if (tempName.Contains("3.61") /*currentDownload.TitleName.Contains("3.61")*/) fwVersion = "3.61";
-                string[] tempStr = tempName.Split();
-                tempName = "";
-
-                foreach (var i in tempStr)
-                {
-
-                    if ((i.Contains("3.6")) && (!i.Contains("3.61+"))) fwVersion = i;
-                    if (!i.Contains("3.6")) tempName += i + " ";
-
-                }
-
-
-                tempName = Regex.Replace(tempName, "[/:\"*?<>|]+", " ");
-                tempName = Regex.Replace(tempName, "\\r\\n", string.Empty);
-                tempName = tempName.Trim();
-
-                var replacements = new Dictionary<string, string>
-                {
-                    ["{pkgfile}"] = "\"" + pkgOutputPath + "\"",
-                    ["{titleid}"] = currentDownload.TitleId.Substring(0, 9),
-                    ["{gametitle}"] = tempName,
-                    ["{region}"] = currentDownload.Region,
-                    ["{zrifkey}"] = currentDownload.zRif,
-                    ["{fwversion}"] = fwVersion,
-                    ["{dlc}"] = dlc,
-                    ["  "] = " "
-                };
-
-                ProcessStartInfo a = new ProcessStartInfo();
-                a.WorkingDirectory = Settings.Instance.downloadDir + Path.DirectorySeparatorChar;
-                a.FileName = string.Format("\"{0}\"", Settings.Instance.pkgPath);
-                a.WindowStyle = ProcessWindowStyle.Hidden;
-                a.CreateNoWindow = true;
-                a.Arguments = replacements.Aggregate(Settings.Instance.pkgParams.ToLower(), (str, rep) => str.Replace(rep.Key, rep.Value));
-                unpackProcess = new Process();
-                unpackProcess.StartInfo = a;
-
-                a.UseShellExecute = false;
-                a.RedirectStandardError = true;
-
-                unpackProcess.EnableRaisingEvents = true;
-                unpackProcess.Exited += Proc_Exited;
-                unpackProcess.ErrorDataReceived += new DataReceivedEventHandler(UnpackProcess_ErrorDataReceived);
-                errors = new List<string>();
-                unpackProcess.Start();
-                unpackProcess.BeginErrorReadLine();
+                return;
             }
+
+            lvi.SubItems[2].Text = "Unpacking";
+
+            string tempName = "";
+            string dlc = "";
+            if (currentDownload.ContentType == ContentType.DLC)
+            {
+                //dlc = "[DLC]";
+                tempName = "[DLC] " + currentDownload.ParentGameTitle;
+            }
+            else
+            {
+                tempName = currentDownload.TitleName;
+            }
+
+            string fwVersion = "3.60";
+            if (tempName.Contains("3.61") /*currentDownload.TitleName.Contains("3.61")*/)
+            {
+                fwVersion = "3.61";
+            }
+            string[] tempStr = tempName.Split();
+            tempName = "";
+
+            foreach (var i in tempStr)
+            {
+                if (i.Contains("3.6") && (!i.Contains("3.61+")))
+                {
+                    fwVersion = i;
+                }
+                if (!i.Contains("3.6"))
+                {
+                    tempName += i + " ";
+                }
+            }
+
+            tempName = Regex.Replace(tempName, "[/:\"*?<>|]+", " ");
+            tempName = Regex.Replace(tempName, "\\r\\n", string.Empty);
+            tempName = tempName.Trim();
+
+            var replacements = new Dictionary<string, string>
+            {
+                ["{pkgfile}"] = $"\"{pkgOutputPath}\"",
+                ["{titleid}"] = currentDownload.TitleId.Substring(0, 9),
+                ["{contentid}"] = currentDownload.ContentId,
+                ["{gametitle}"] = tempName,
+                ["{region}"] = currentDownload.Region,
+                ["{zrifkey}"] = currentDownload.zRif,
+                ["{fwversion}"] = fwVersion,
+                ["{dlc}"] = dlc,
+                ["  "] = " "
+            };
+
+            ProcessStartInfo a = new ProcessStartInfo
+            {
+                WorkingDirectory = Settings.Instance.downloadDir + Path.DirectorySeparatorChar,
+                FileName = string.Format("\"{0}\"", Settings.Instance.unpackerPath),
+                Arguments = replacements.Aggregate(Settings.Instance.unpackerParams.ToLowerInvariant(), (str, rep) => str.Replace(rep.Key, rep.Value)),
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+            };
+
+            _unpackProcess = new Process
+            {
+                StartInfo = a,
+                EnableRaisingEvents = true
+            };
+
+            _unpackProcess.Exited += UnpackProcessExited;
+            _unpackProcess.ErrorDataReceived += new DataReceivedEventHandler(UnpackProcessErrorDataReceived);
+
+            _errors.Clear();
+
+            _unpackProcess.Start();
+            _unpackProcess.BeginErrorReadLine();
         }
 
-        void UnpackCompPack()
+        private void UnpackCompPack()
         {
-            if (this.status == WorkerStatus.Downloaded || this.status == WorkerStatus.Completed)
+            if (Status != WorkerStatus.Downloaded && Status != WorkerStatus.Completed)
             {
-                this.status = WorkerStatus.Completed;
-                try
+                return;
+            }
+            Status = WorkerStatus.Completed;
+            try
+            {
+                lvi.SubItems[2].Text = "Processing";
+
+                //if (Directory.Exists(Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId)))
+                //{
+                //    Directory.Delete(Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId), true);
+                //}
+
+                using (var archive = ZipFile.OpenRead(pkgOutputPath))
                 {
-                    lvi.SubItems[2].Text = "Processing";
-
-                    //if (Directory.Exists(Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId)))
-                    //    Directory.Delete(Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId), true);
-
-
-
-                    using (var archive = ZipFile.OpenRead(pkgOutputPath))
+                    foreach (var entry in archive.Entries)
                     {
-                        foreach (var entry in archive.Entries)
+                        if (entry.Length == 0) continue;
+
+                        string file = Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId, entry.FullName);
+                        var dir = Path.GetDirectoryName(file);
+
+                        if (!Directory.Exists(dir))
                         {
-                            if (entry.Length == 0) continue;
-
-                            string file = Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId, entry.FullName);
-                            var dir = Path.GetDirectoryName(file);
-
-                            if (!Directory.Exists(dir))
-                                Directory.CreateDirectory(dir);
-
-                            entry.ExtractToFile(file, true);
+                            Directory.CreateDirectory(dir);
                         }
+
+                        entry.ExtractToFile(file, true);
                     }
-
-                    //System.IO.Compression.ZipFile.ExtractToDirectory(Path.Combine(Settings.Instance.downloadDir, currentDownload.DownloadFileName + currentDownload.extension), Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId));
-                    lvi.SubItems[1].Text = "";
-                    lvi.SubItems[2].Text = "Completed";
-                    if (!Settings.Instance.history.completedDownloading.Contains(this.currentDownload))
-                        Settings.Instance.history.completedDownloading.Add(this.currentDownload);
-
-                    if (Settings.Instance.deleteAfterUnpack)
-                        DeletePkg();
                 }
-                catch (Exception err)
+
+                //System.IO.Compression.ZipFile.ExtractToDirectory(Path.Combine(Settings.Instance.downloadDir, currentDownload.DownloadFileName + currentDownload.extension), Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId));
+                lvi.SubItems[1].Text = "";
+                lvi.SubItems[2].Text = "Completed";
+                if (!Settings.Instance.history.completedDownloading.Contains(currentDownload))
                 {
-                    lvi.SubItems[1].Text = "Error!";
-                    lvi.SubItems[2].Text = err.Message;
+                    Settings.Instance.history.completedDownloading.Add(currentDownload);
                 }
+
+                if (Settings.Instance.deleteAfterUnpack)
+                {
+                    DeletePkg();
+                }
+            }
+            catch (Exception err)
+            {
+                lvi.SubItems[1].Text = "Error!";
+                lvi.SubItems[2].Text = err.Message;
             }
         }
 
-        void UnpackPS3()
+        private void UnpackPS3()
         {
-            if (this.status == WorkerStatus.Downloaded || this.status == WorkerStatus.Completed)
+            if (Status != WorkerStatus.Downloaded && Status != WorkerStatus.Completed)
             {
-                this.status = WorkerStatus.Completed;
-                try
+                return;
+            }
+            Status = WorkerStatus.Completed;
+            try
+            {
+                lvi.SubItems[2].Text = "Processing";
+                // jon: custom PS3 file placement
+                string gamePath = Path.Combine(Settings.Instance.downloadDir, "PS3", currentDownload.TitleId);
+                string path = Path.Combine(gamePath, "packages");
+                // jon: end
+                if (!Directory.Exists(path))
                 {
-                    lvi.SubItems[2].Text = "Processing";
-                    // jon: custom PS3 file placement
-                    string gamePath = Settings.Instance.downloadDir + Path.DirectorySeparatorChar +
-                        "PS3" + Path.DirectorySeparatorChar +
-                        currentDownload.TitleId;
-                    string path = gamePath + Path.DirectorySeparatorChar + "packages";
-                    // jon: end
-                    if( !Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+                }
+                //string newPkgName = String.Format("{0} [{1}] [{2}]", currentDownload.TitleName, currentDownload.TitleId, currentDownload.GetRegionCode());
+                string newPkgName = currentDownload.ContentId;
+                if (currentDownload.ContentType == ContentType.DLC)
+                    newPkgName = "[DLC] " + newPkgName;
+                if (currentDownload.ContentType == ContentType.UPDATE)
+                    newPkgName = "[UPDATE] " + newPkgName;
+
+                File.Move(pkgOutputPath, Path.Combine(path, newPkgName + currentDownload.PackageFileExtension));
+
+                // jon: changing to custom directory location
+                path = Path.Combine(gamePath, "exdata");
+                // jon: end
+
+                if (!string.IsNullOrEmpty(currentDownload.ContentId)
+                    && currentDownload.ContentId.ToLowerInvariant() != "missing"
+                    && currentDownload.zRif.ToLowerInvariant() != "not required"
+                    && currentDownload.zRif.Length % 2 == 0)
+                {
+                    if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
                     }
-                    //string newPkgName = String.Format( "{0} [{1}] [{2}]", currentDownload.TitleName, currentDownload.TitleId, currentDownload.GetRegionCode() );
-                    string newPkgName = currentDownload.ContentId;
-                    if( currentDownload.IsDLC )
-                        newPkgName = "[DLC] " + newPkgName;
-                    if( currentDownload.IsUpdate )
-                        newPkgName = "[UPDATE] " + newPkgName;
-                    File.Move(pkgOutputPath, path + Path.DirectorySeparatorChar + newPkgName + currentDownload.extension);
-                    
 
-                    // jon: changing to custom directory location
-                    path = gamePath + Path.DirectorySeparatorChar + "exdata";
-                    // jon: end
-
-                    if( !string.IsNullOrEmpty(currentDownload.ContentId) && currentDownload.ContentId.ToLower() != "missing" && currentDownload.zRif.ToLower() != "NOT REQUIRED".ToLower() && currentDownload.zRif.Length % 2 == 0)
+                    byte[] array = new byte[currentDownload.zRif.Length / 2];
+                    for (int i = 0; i < currentDownload.zRif.Length / 2; ++i)
                     {
-                        if (!Directory.Exists(path))
-                        {
-                            Directory.CreateDirectory(path);
-                        }
-
-                        byte[] array = new byte[currentDownload.zRif.Length / 2];
-                        for (int i = 0; i < currentDownload.zRif.Length / 2; i++)
-                        {
-                            array[i] = Convert.ToByte(currentDownload.zRif.Substring(i * 2, 2), 16);
-                        }
-
-                        File.WriteAllBytes(path + Path.DirectorySeparatorChar + currentDownload.ContentId + ".rap", array);
+                        array[i] = Convert.ToByte(currentDownload.zRif.Substring(i * 2, 2), 16);
                     }
 
-                    lvi.SubItems[1].Text = "";
-                    lvi.SubItems[2].Text = "Completed";
-
-                    if (!Settings.Instance.history.completedDownloading.Contains(this.currentDownload))
-                        Settings.Instance.history.completedDownloading.Add(this.currentDownload);
-
+                    File.WriteAllBytes(Path.Combine(path, currentDownload.ContentId + ".rap"), array);
                 }
-                catch (Exception err)
+
+                lvi.SubItems[1].Text = "";
+                lvi.SubItems[2].Text = "Completed";
+
+                if (!Settings.Instance.history.completedDownloading.Contains(currentDownload))
                 {
-                    lvi.SubItems[1].Text = "Error!";
-                    lvi.SubItems[2].Text = err.Message;
+                    Settings.Instance.history.completedDownloading.Add(currentDownload);
                 }
 
             }
+            catch (Exception err)
+            {
+                lvi.SubItems[1].Text = "Error!";
+                lvi.SubItems[2].Text = err.Message;
+            }
         }
 
-        List<string> errors = new List<string>();
-
-        private void UnpackProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        private void UnpackProcessErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            errors.Add(e.Data);
+            _errors.Add(e.Data);
         }
 
-        private void Proc_Exited(object sender, EventArgs e)
+        private void UnpackProcessExited(object sender, EventArgs e)
         {
-            this.status = WorkerStatus.Completed;
+            Status = WorkerStatus.Completed;
 
-            var proc = (sender as Process);
+            var proc = sender as Process;
             if (proc.ExitCode == 0)
             {
                 formCaller.Invoke(new Action(() =>
@@ -504,11 +422,15 @@ namespace NPS
                     lvi.SubItems[1].Text = "";
                     lvi.SubItems[2].Text = "Completed";
 
-                    if (!Settings.Instance.history.completedDownloading.Contains(this.currentDownload))
-                        Settings.Instance.history.completedDownloading.Add(this.currentDownload);
+                    if (!Settings.Instance.history.completedDownloading.Contains(currentDownload))
+                    {
+                        Settings.Instance.history.completedDownloading.Add(currentDownload);
+                    }
 
                     if (Settings.Instance.deleteAfterUnpack)
+                    {
                         DeletePkg();
+                    }
                 }));
             }
             else
@@ -518,26 +440,105 @@ namespace NPS
                     lvi.SubItems[1].Text = "PKG decrypt err!";
                     lvi.SubItems[2].Text = "";
 
-                    errors.Remove(null);
-                    if (errors.Count > 0)
+                    _errors.Remove(null);
+                    if (_errors.Count > 0)
                     {
-                        if (errors[0].Contains("pkg_dec - PS Vita PKG decryptor/unpacker")) errors.Remove(errors[0]);
-                        if (errors.Count > 0)
-                            lvi.SubItems[2].Text = errors[0];
+                        if (_errors[0].Contains("pkg_dec - PS Vita PKG decryptor/unpacker"))
+                        {
+                            _errors.Remove(_errors[0]);
+                        }
+                        if (_errors.Count > 0)
+                        {
+                            lvi.SubItems[2].Text = _errors[0];
+                        }
                     }
                 }
                 ));
             }
         }
 
+        private void DecryptVita()
+        {
+            lvi.SubItems[2].Text = "Decrypting";
 
-        long totalSize = 0;
-        long completedSize = 0;
-        [System.NonSerialized]
-        System.IO.Stream smRespStream;
-        [System.NonSerialized]
-        System.IO.FileStream saveFileStream;
-        void DownloadFile(string sSourceURL, string sDestinationPath)
+            string tempName = "";
+            string dlc = "";
+            if (currentDownload.ContentType == ContentType.DLC)
+            {
+                //dlc = "[DLC]";
+                tempName = "[DLC] " + currentDownload.ParentGameTitle;
+            }
+            else
+            {
+                tempName = currentDownload.TitleName;
+            }
+
+            string fwVersion = "3.60";
+            if (tempName.Contains("3.61") /*currentDownload.TitleName.Contains("3.61")*/)
+            {
+                fwVersion = "3.61";
+            }
+            string[] tempStr = tempName.Split();
+            tempName = "";
+
+            foreach (var i in tempStr)
+            {
+                if (i.Contains("3.6") && (!i.Contains("3.61+")))
+                {
+                    fwVersion = i;
+                }
+                if (!i.Contains("3.6"))
+                {
+                    tempName += i + " ";
+                }
+            }
+
+            tempName = Regex.Replace(tempName, "[/:\"*?<>|]+", " ");
+            tempName = Regex.Replace(tempName, "\\r\\n", string.Empty);
+            tempName = tempName.Trim();
+
+            var replacements = new Dictionary<string, string>
+            {
+                ["{pkgfile}"] = $"\"{pkgOutputPath}\"",
+                ["{pathIn}"] = {},
+                ["{pathOut}"] = { },
+                ["{titleid}"] = currentDownload.TitleId.Substring(0, 9),
+                ["{contentid}"] = currentDownload.ContentId,
+                ["{gametitle}"] = tempName,
+                ["{region}"] = currentDownload.Region,
+                ["{zrifkey}"] = currentDownload.zRif,
+                ["{fwversion}"] = fwVersion,
+                ["{dlc}"] = dlc,
+                ["  "] = " "
+            };
+
+            ProcessStartInfo a = new ProcessStartInfo
+            {
+                WorkingDirectory = Settings.Instance.downloadDir + Path.DirectorySeparatorChar,
+                FileName = string.Format("\"{0}\"", Settings.Instance.psvParserPath),
+                Arguments = replacements.Aggregate(Settings.Instance.psvParserParams.ToLowerInvariant(), (str, rep) => str.Replace(rep.Key, rep.Value)),
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+            };
+
+            _unpackProcess = new Process
+            {
+                StartInfo = a,
+                EnableRaisingEvents = true
+            };
+
+            _unpackProcess.Exited += UnpackProcessExited;
+            _unpackProcess.ErrorDataReceived += new DataReceivedEventHandler(UnpackProcessErrorDataReceived);
+
+            _errors.Clear();
+
+            _unpackProcess.Start();
+            _unpackProcess.BeginErrorReadLine();
+        }
+
+        private void DownloadFile(string sSourceURL, string sDestinationPath)
         {
             try
             {
@@ -548,47 +549,48 @@ namespace NPS
 
                 if (File.Exists(sDestinationPath))
                 {
-                    System.IO.FileInfo fINfo =
-                       new System.IO.FileInfo(sDestinationPath);
+                    FileInfo fINfo = new FileInfo(sDestinationPath);
                     iExistLen = fINfo.Length;
                 }
                 ;
                 if (iExistLen > 0)
-                    saveFileStream = new System.IO.FileStream(sDestinationPath,
+                {
+                    saveFileStream = new FileStream(sDestinationPath,
                       FileMode.Append, FileAccess.Write,
                       FileShare.ReadWrite);
+                }
                 else
-                    saveFileStream = new System.IO.FileStream(sDestinationPath,
+                {
+                    saveFileStream = new FileStream(sDestinationPath,
                       FileMode.Create, FileAccess.Write,
                       FileShare.ReadWrite);
+                }
 
                 HttpWebRequest hwRq;
-                System.Net.HttpWebResponse hwRes;
-                var urr = new Uri(sSourceURL);
-                hwRq = (System.Net.HttpWebRequest)WebRequest.Create(urr);
+                HttpWebResponse hwRes;
+                var uri = new Uri(sSourceURL);
+                hwRq = (HttpWebRequest)WebRequest.Create(uri);
                 hwRq.Proxy = Settings.Instance.proxy;
-                hwRes = (System.Net.HttpWebResponse)hwRq.GetResponse();
+                hwRes = (HttpWebResponse)hwRq.GetResponse();
                 hwRes.Close();
 
-                long totalLength = hwRes.ContentLength;
-                totalSize = totalLength;
-                if (totalLength != iExistLen)
+                totalSize = hwRes.ContentLength;
+                if (totalSize != iExistLen)
                 {
-                    hwRq = (System.Net.HttpWebRequest)WebRequest.Create(urr);
+                    hwRq = (HttpWebRequest)WebRequest.Create(uri);
                     hwRq.Proxy = Settings.Instance.proxy;
                     hwRq.AddRange(iExistLen);
 
-                    hwRes = (System.Net.HttpWebResponse)hwRq.GetResponse();
+                    hwRes = (HttpWebResponse)hwRq.GetResponse();
                     smRespStream = hwRes.GetResponseStream();
 
                     iFileSize = hwRes.ContentLength;
-                    //   totalSize += hwRes.ContentLength;
 
                     byte[] downBuffer = new byte[iBufferSize];
                     int iByteSize;
                     while ((iByteSize = smRespStream.Read(downBuffer, 0, downBuffer.Length)) > 0)
                     {
-                        if (status == WorkerStatus.Paused || status == WorkerStatus.Canceled) return;
+                        if (Status == WorkerStatus.Paused || Status == WorkerStatus.Canceled) return;
 
                         saveFileStream.Write(downBuffer, 0, iByteSize);
 
@@ -598,7 +600,6 @@ namespace NPS
                         {
                             lastUpdate = DateTime.Now;
                             lastBytes = completedSize;
-
                         }
                         else
                         {
@@ -607,11 +608,9 @@ namespace NPS
                             var bytesChange = completedSize - lastBytes;
                             if (timeSpan.Seconds != 0)
                             {
-                                bytesPerSecond = bytesChange / timeSpan.Seconds;
+                                _downloadSpeed = bytesChange / timeSpan.Seconds;
                                 lastBytes = completedSize;
                                 lastUpdate = now;
-
-
                             }
                         }
                     }
@@ -624,69 +623,57 @@ namespace NPS
             }
             catch (Exception err)
             {
-
                 formCaller.Invoke(new Action(() =>
                 {
-                    this.Pause();
-                    MessageBox.Show("Unable to download \"" + currentDownload.TitleName + "\"." + Environment.NewLine + err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Pause();
+                    MessageBox.Show($"Unable to download \"{currentDownload.TitleName}\".{Environment.NewLine}{err.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }));
-
             }
-
         }
-
-
-        long bytesPerSecond = 0;
-
 
         private void DownloadCompleted()
         {
             timer.Stop();
 
-            this.status = WorkerStatus.Downloaded;
+            Status = WorkerStatus.Downloaded;
 
             lvi.SubItems[1].Text = "";
-
 
             Unpack();
 
             progressValue = 100;
             progress.Value = progressValue;
-
-
         }
-
-
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            string speed = "";
-            bytesPerSecond = bytesPerSecond / 1024;
-            if (bytesPerSecond < 1500)
-                speed = bytesPerSecond.ToString() + " KB/s";
-            else
-            {
-                speed = ((float)((float)bytesPerSecond / 1024)).ToString("0.00") + " MB/s";
-            }
+            string speed = $"{Utils.GetSizeShort(_downloadSpeed)}/s";
 
             lvi.SubItems[1].Text = speed;
-            var prgs = (float)completedSize / (float)totalSize;
 
-            try
+            if (totalSize > 0)
             {
-                if (prgs != float.NaN)
+                float prgs = (float)completedSize / totalSize;
+                progressValue = (int)(prgs * 100.0F);
+                if (progressValue > 100)
                 {
-                    progressValue = Convert.ToInt32(prgs * 100);
-                    progress.Value = progressValue;
+                    progressValue = 100;
+                }
+                else if (progressValue < 0)
+                {
+                    progressValue = 0;
                 }
             }
-            catch { }
+            else
+            {
+                progressValue = 0;
+            }
 
-            lvi.SubItems[2].Text = completedSize / (1024 * 1024) + "MB/" + totalSize / (1024 * 1024) + "MB";
+            progress.Value = progressValue;
+
+            lvi.SubItems[2].Text = $"{Utils.GetSizeShort(completedSize)} / {Utils.GetSizeShort(totalSize)}";
         }
     }
 
     public enum WorkerStatus { Queued, Running, Paused, Completed, Downloaded, Canceled, DownloadError }
 }
-
-

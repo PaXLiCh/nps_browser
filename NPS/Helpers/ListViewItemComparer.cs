@@ -4,60 +4,48 @@ using System.Windows.Forms;
 
 namespace NPS
 {
-    class ListViewItemComparer : IComparer
+    internal class ListViewItemComparer : IComparer
     {
-        private int col;
-        private bool invertOrder = false;
+        private readonly int _column;
+        private readonly bool _invertOrder = false;
         public ListViewItemComparer()
         {
-            col = 0;
+            _column = 0;
         }
         public ListViewItemComparer(int column, bool invertedOrder)
         {
-            col = column;
-            invertOrder = invertedOrder;
-
+            _column = column;
+            _invertOrder = invertedOrder;
         }
         public int Compare(object x, object y)
         {
             int returnVal = -1;
 
-            string sx = ((ListViewItem)x).SubItems[col].Text;
-            string sy = ((ListViewItem)y).SubItems[col].Text;
+            string sx = ((ListViewItem)x).SubItems[_column].Text;
+            string sy = ((ListViewItem)y).SubItems[_column].Text;
 
-            if (col == 4)
+            if (_column == 4)
             {
-                float fx, fy;
+                float.TryParse(sx, out float fx);
+                float.TryParse(sy, out float fy);
 
-                float.TryParse(sx, out fx);
-                float.TryParse(sy, out fy);
-
-                if (!invertOrder)
-                    returnVal = fx.CompareTo(fy);
-                else returnVal = fy.CompareTo(fx);
+                returnVal = _invertOrder ? fy.CompareTo(fx) : fx.CompareTo(fy);
             }
-            else if (col == 5)
+            else if (_column == 5)
             {
                 DateTime dtx = DateTime.MinValue;
                 DateTime.TryParse(sx, out dtx);
                 DateTime dty = DateTime.MinValue;
                 DateTime.TryParse(sy, out dty);
 
-                if (!invertOrder)
-                    returnVal = dtx.CompareTo(dty);
-                else returnVal = dty.CompareTo(dtx);
-
+                returnVal = _invertOrder ? dty.CompareTo(dtx) : dtx.CompareTo(dty);
             }
             else
             {
-                if (!invertOrder)
-                    returnVal = String.Compare(sx, sy);
-                else
-                    returnVal = String.Compare(sy, sx);
+                returnVal = _invertOrder ? string.Compare(sy, sx) : string.Compare(sx, sy);
             }
             return returnVal;
         }
     }
-
 
 }

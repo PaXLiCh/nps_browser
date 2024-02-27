@@ -110,17 +110,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompPack.cs">
+    <Compile Include="Forms\CompPackForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CompPack.Designer.cs">
-      <DependentUpon>CompPack.cs</DependentUpon>
+    <Compile Include="Forms\CompPackForm.Designer.cs">
+      <DependentUpon>CompPackForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Desc.cs">
+    <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\Release.cs" />
+    <Compile Include="Forms\ContentInfoForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Desc.Designer.cs">
-      <DependentUpon>Desc.cs</DependentUpon>
+    <Compile Include="Forms\ContentInfoForm.Designer.cs">
+      <DependentUpon>ContentInfoForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CustomComponents\CheckBoxComboBox.cs">
       <SubType>Component</SubType>
@@ -142,64 +144,60 @@
     <Compile Include="Helpers\CustomComponents\PopupComboBox.Designer.cs">
       <DependentUpon>PopupComboBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\NPCache.cs" />
-    <Compile Include="Helpers\History.cs" />
-    <Compile Include="Helpers\PSNJson.cs" />
+    <Compile Include="Data\NPCache.cs" />
+    <Compile Include="Helpers\FileDownloader.cs" />
+    <Compile Include="Data\History.cs" />
+    <Compile Include="Data\PSNJson.cs" />
     <Compile Include="Helpers\SimpleJson.cs" />
     <Compile Include="Helpers\DownloadWorker.cs" />
-    <Compile Include="Helpers\Renascene.cs" />
+    <Compile Include="Data\StoreInfo.cs" />
     <Compile Include="Helpers\Settings.cs" />
-    <Compile Include="Helpers\Item.cs" />
+    <Compile Include="Data\Item.cs" />
     <Compile Include="Helpers\CustomComponents\ListViewEx.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\ListViewItemComparer.cs" />
-    <Compile Include="Library.cs">
+    <Compile Include="Helpers\Utils.cs" />
+    <Compile Include="Forms\LibraryForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Library.Designer.cs">
-      <DependentUpon>Library.cs</DependentUpon>
+    <Compile Include="Forms\LibraryForm.Designer.cs">
+      <DependentUpon>LibraryForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Options.cs">
+    <Compile Include="Forms\OptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Options.Designer.cs">
-      <DependentUpon>Options.cs</DependentUpon>
+    <Compile Include="Forms\OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="RuForm.cs">
+    <Compile Include="Forms\BrowserForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RuForm.Designer.cs">
-      <DependentUpon>RuForm.cs</DependentUpon>
+    <Compile Include="Forms\BrowserForm.Designer.cs">
+      <DependentUpon>BrowserForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SyncDB.cs">
+    <Compile Include="Forms\PatchForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SyncDB.Designer.cs">
-      <DependentUpon>SyncDB.cs</DependentUpon>
+    <Compile Include="Forms\PatchForm.Designer.cs">
+      <DependentUpon>PatchForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Update.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Update.Designer.cs">
-      <DependentUpon>Update.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="CompPack.resx">
-      <DependentUpon>CompPack.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\CompPackForm.resx">
+      <DependentUpon>CompPackForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Desc.resx">
-      <DependentUpon>Desc.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ContentInfoForm.resx">
+      <DependentUpon>ContentInfoForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Helpers\CustomComponents\PopupComboBox.resx">
       <DependentUpon>PopupComboBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Library.resx">
-      <DependentUpon>Library.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\LibraryForm.resx">
+      <DependentUpon>LibraryForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Options.resx">
-      <DependentUpon>Options.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\OptionsForm.resx">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -211,14 +209,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="RuForm.resx">
-      <DependentUpon>RuForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\BrowserForm.resx">
+      <DependentUpon>BrowserForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SyncDB.resx">
-      <DependentUpon>SyncDB.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Update.resx">
-      <DependentUpon>Update.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\PatchForm.resx">
+      <DependentUpon>PatchForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />

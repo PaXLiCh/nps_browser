@@ -13,7 +13,7 @@ namespace PresentationControls
     /// CodeProject.com "Simple pop-up control" "http://www.codeproject.com/cs/miscctrl/simplepopup.asp".
     /// Represents a Windows combo box control with a custom popup control attached.
     /// </summary>
-    [ToolboxBitmap(typeof(System.Windows.Forms.ComboBox)), ToolboxItem(true), ToolboxItemFilter("System.Windows.Forms"), Description("Displays an editable text box with a drop-down list of permitted values.")]
+    [ToolboxBitmap(typeof(ComboBox)), ToolboxItem(true), ToolboxItemFilter("System.Windows.Forms"), Description("Displays an editable text box with a drop-down list of permitted values.")]
     public partial class PopupComboBox : ComboBox
     {
         /// <summary>

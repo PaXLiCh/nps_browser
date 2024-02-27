@@ -2,7 +2,7 @@
 //
 // To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
 //
-//    using NPS;
+//    using NPS.Data;
 //
 //    var psnJson = PSNJson.FromJson(jsonString);
 using System;
@@ -13,7 +13,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace PSN
+namespace NPS.Data
 {
     public partial class PSNJson
     {
@@ -199,7 +199,7 @@ namespace PSN
     public partial class Image
     {
         [JsonProperty("type")]
-        public long Type { get; set; }
+        public byte Type { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -485,7 +485,7 @@ namespace PSN
         public string Rep { get; set; }
 
         [JsonProperty("type")]
-        public long Type { get; set; }
+        public byte Type { get; set; }
     }
 
     public partial class Material
@@ -570,16 +570,16 @@ namespace PSN
         public string Score { get; set; }
 
         [JsonProperty("count")]
-        public Count[] Count { get; set; }
+        public RatingCounter[] Count { get; set; }
     }
 
-    public partial class Count
+    public partial class RatingCounter
     {
         [JsonProperty("star")]
-        public long Star { get; set; }
+        public byte Star { get; set; }
 
         [JsonProperty("count")]
-        public long CountCount { get; set; }
+        public long Count { get; set; }
     }
 
     public partial struct LangElement
