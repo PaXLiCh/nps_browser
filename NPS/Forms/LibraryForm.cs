@@ -49,6 +49,20 @@ namespace NPS
 
             LblDownloadsRootPath.Text = Settings.Instance.downloadDir;
 
+            // Directory not specified
+            if (string.IsNullOrWhiteSpace(Settings.Instance.downloadDir))
+            {
+                return;
+            }
+
+            // Directory for downloads not exists, create one
+            if (!Directory.Exists(Settings.Instance.downloadDir))
+            {
+                Directory.CreateDirectory(Settings.Instance.downloadDir);
+            }
+
+            FindTitlesForTrailingFiles();
+
             FindTitlesPerPlatform(Platform.PSP);
             FindTitlesPerPlatform(Platform.PSV);
             FindTitlesPerPlatform(Platform.PS3);
@@ -64,22 +78,10 @@ namespace NPS
             string[] apps = new string[0];
             string[] dlcs = new string[0];
 
-            // Directory not specified
-            if (string.IsNullOrWhiteSpace(Settings.Instance.downloadDir))
-            {
-                return;
-            }
-
-            // Directory for downloads not exists, create one
-            if (!Directory.Exists(Settings.Instance.downloadDir))
-            {
-                Directory.CreateDirectory(Settings.Instance.downloadDir);
-            }
-
             // List downloaded content
-            List<string> files = Directory.GetFiles(Settings.Instance.downloadDir, PKG_EXTENSION).ToList();
+            List<string> files = new List<string>();
 
-            var pathPackagesDir = Settings.Instance.GetDownloadsDirPackages(platform);
+            var pathPackagesDir = Settings.Instance.GetDownloadsDirPackages(platform, ContentType.APP);
             var pathAppDir = Settings.Instance.GetDownloadsDirApp(platform);
             var pathAddcontDir = Settings.Instance.GetDownloadsDirAddons(platform);
 
@@ -104,7 +106,8 @@ namespace NPS
                 var fileName = Path.GetFileNameWithoutExtension(filePath);
 
                 bool found = false;
-                foreach (var itm in db)
+                // Search apps
+                foreach (var itm in Database.Instance.Apps)
                 {
                     if (fileName.Equals(itm.PackageFileName))
                     {
@@ -222,6 +225,73 @@ namespace NPS
             }
         }
 
+        private void FindTitlesForTrailingFiles()
+        {
+            // List downloaded content
+            List<string> files = Directory.GetFiles(Settings.Instance.downloadDir, PKG_EXTENSION).ToList();
+
+            // Sort package files, move them to platform/content related directories
+            foreach (string filePath in files)
+            {
+                if (MoveFiles(filePath, Database.Instance.Apps))
+                {
+                    continue;
+                }
+                if (MoveFiles(filePath, Database.Instance.DLCs))
+                {
+                    continue;
+                }
+                if (MoveFiles(filePath, Database.Instance.Updates))
+                {
+                    continue;
+                }
+                if (MoveFiles(filePath, Database.Instance.Avatars))
+                {
+                    continue;
+                }
+                if (MoveFiles(filePath, Database.Instance.Themes))
+                {
+                    continue;
+                }
+            }
+        }
+
+        private bool MoveFiles([NotNull] string filePath, [NotNull] List<Item> titlesToCheck)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(filePath);
+            Item title = null;
+            foreach (var itm in titlesToCheck)
+            {
+                // Check name by Content ID/Title ID
+                if (fileName.Equals(itm.PackageFileName))
+                {
+                    title = itm;
+                    break;
+                }
+                // Check name by package name from store
+                Uri uri = new Uri(itm.pkg);
+                var fileNamePkg = Path.GetFileNameWithoutExtension(uri.LocalPath);
+                if (fileName.Equals(fileNamePkg, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    title = itm;
+                    break;
+                }
+            }
+            if (title != null)
+            {
+                var pkgDir = title.PkgsDir;
+                var filePathNew = Path.Combine(pkgDir, title.PackageFileNameWithExtension);
+                Console.WriteLine($"Move pkg file to new location: \"{filePathNew}\"");
+                if (!Directory.Exists(pkgDir))
+                {
+                    Directory.CreateDirectory(pkgDir);
+                }
+                File.Move(filePath, filePathNew);
+                return true;
+            }
+            return false;
+        }
+
         private void DownloadImages([NotNull] List<Item> images)
         {
             Task downloader = new Task(() =>
@@ -245,20 +315,7 @@ namespace NPS
                     }
 
                     // TODO: download images
-                    /*if (image == null)
-                    {
-                        WebClient wc = new WebClient
-                        {
-                            Proxy = Settings.Instance.proxy,
-                            Encoding = Encoding.UTF8
-                        };
-                        var img = wc.DownloadData(titleId);
-                        using (var ms = new MemoryStream(img))
-                        {
-                            image = Image.FromStream(ms);
-                            //image = Utils.GetThumb(image);
-                        }
-                    }*/
+
                     if (image == null)
                     {
                         continue;
@@ -288,7 +345,7 @@ namespace NPS
         {
             if (lvDownloaded.SelectedItems.Count == 0) return;
             string path = (lvDownloaded.SelectedItems[0].Tag as LibraryItem).path;
-            Process.Start("explorer.exe", "/select, " + path);
+            Process.Start("explorer.exe", $"/select, {path}");
         }
 
         private void BtnDeleteFromListClick(object sender, EventArgs e)

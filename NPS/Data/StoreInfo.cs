@@ -14,10 +14,11 @@ namespace NPS.Data
     [Serializable]
     public class StoreInfo
     {
-        public string Genre, Language, Publisher, Developer, Size, Url, Description, Rating;
+        public string Genre, Language, Publisher, Developer, Url, Description, Rating;
 
         public string TitleId;
         public string ContentId;
+        public ulong Size;
 
         /// <summary>
         /// Instantiate new store info about specified title.
@@ -115,7 +116,14 @@ namespace NPS.Data
 
             storeInfo.UpdateInfo(contentInfo);
 
-            storeInfo.Size = Utils.GetSize(title.pkg);
+            if (title.FileSize == 0UL)
+            {
+                storeInfo.Size = Utils.GetSize(title.pkg);
+            }
+            else
+            {
+                storeInfo.Size = title.FileSize;
+            }
 
             // Download images
             if (Settings.Instance.IsAutoDownloadImages)
@@ -216,11 +224,15 @@ namespace NPS.Data
 
         public override string ToString()
         {
-            return string.Format(@"Size: {4}
+            var (sizeShort, unit) = Utils.GetSizeShort(Size);
+            string s = $"{sizeShort} {unit}";
+
+            return string.Format(
+@"Size: {4}
 Genre: {0}
 Rating: {3}/5
-Language: {1}
-Published: {2}", Genre, Language, Publisher, Rating, Size);
+Published: {2}",
+Genre, Language, Publisher, Rating, s);
         }
 
         public string SafeTitle(string title)

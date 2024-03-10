@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -95,6 +96,11 @@ namespace NPS.Data
         private int _jobsAdded = 0;//17
         private int _jobsFinished = 0;
 
+        private readonly NumberStyles numberStyleFileSize = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+
+        // Date in tsv 2021-04-27 03:12:41
+        private const string dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+
         [CanBeNull]
         public List<Item> Apps => appsDbs;
 
@@ -178,22 +184,25 @@ namespace NPS.Data
                                 _cache = null;
                             }
                         }
-                        catch
+                        catch (Exception e)
                         {
-                            //
+                            Console.WriteLine("Unable to read database.");
+                            Console.WriteLine($"Error: {e.Message}");
                         }
                         finally
                         {
-                            //
+                            // Do nothing.
                         }
                     }
                 }
                 if (_cache == null)
                 {
+                    // Build new database
                     Sync();
                 }
                 else
                 {
+                    // Process loaded database
                     appsDbs = _cache.gamesDatabase;
                     dlcsDbs = _cache.dlcsDatabase;
                     updatesDbs = _cache.updatesDatabase;
@@ -242,18 +251,19 @@ namespace NPS.Data
             CacheSyncStarted?.Invoke(this, new EventArgs());
 
             // Update DBs
+            var taskUpdatePSP = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSPUpdateUri, Platform.PSP, ContentType.UPDATE, ParseLinePSP);
             var taskUpdatePSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVUpdateUri, Platform.PSV, ContentType.UPDATE, ParseLinePSV);
             var taskUpdatePS4 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS4UpdateUri, Platform.PS4, ContentType.UPDATE, ParseLinePS4);
 
             // Theme DBs
-            var taskThemePSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVThemeUri, Platform.PSV, ContentType.THEME, ParseLinePSV);
             var taskThemePSP = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSPThemeUri, Platform.PSP, ContentType.THEME, ParseLinePSP);
+            var taskThemePSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVThemeUri, Platform.PSV, ContentType.THEME, ParseLinePSV);
             var taskThemePS3 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS3ThemeUri, Platform.PS3, ContentType.THEME, ParseLinePS3);
             var taskThemePS4 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS4ThemeUri, Platform.PS4, ContentType.THEME, ParseLinePS4);
 
             // DLC DBs
-            var taskDLCPSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVDLCUri, Platform.PSV, ContentType.DLC, ParseLinePSV);
             var taskDLCPSP = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSPDLCUri, Platform.PSP, ContentType.DLC, ParseLinePSP);
+            var taskDLCPSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVDLCUri, Platform.PSV, ContentType.DLC, ParseLinePSV);
             var taskDLCPS3 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS3DLCUri, Platform.PS3, ContentType.DLC, ParseLinePS3);
             var taskDLCPS4 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS4DLCUri, Platform.PS4, ContentType.DLC, ParseLinePS4);
 
@@ -261,12 +271,15 @@ namespace NPS.Data
             var taskAvatarPS3 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS3AvatarUri, Platform.PS3, ContentType.AVATAR, ParseLinePS3);
 
             // Game DBs
+            var taskGamePSP = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSPUri, Platform.PSP, ContentType.APP, ParseLinePSP);
             var taskGamePSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVUri, Platform.PSV, ContentType.APP, ParseLinePSV);
             var taskGamePSM = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSMUri, Platform.PSM, ContentType.APP, ParseLinePSM);
             var taskGamePSX = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSXUri, Platform.PSX, ContentType.APP, ParseLinePSX);
-            var taskGamePSP = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSPUri, Platform.PSP, ContentType.APP, ParseLinePSP);
             var taskGamePS3 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS3Uri, Platform.PS3, ContentType.APP, ParseLinePS3);
             var taskGamePS4 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS4Uri, Platform.PS4, ContentType.APP, ParseLinePS4);
+
+            var taskDemoPSV = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PSVDemoUri, Platform.PSV, ContentType.APP, ParseLinePSV);
+            var taskDemoPS3 = LoadDatabase(cancellationTokenSource.Token, Settings.Instance.PS3DemoUri, Platform.PSV, ContentType.APP, ParseLinePS3);
 
             await Task.WhenAll(tasks);
 
@@ -303,6 +316,7 @@ namespace NPS.Data
             avatarsDbs.AddRange(taskAvatarPS3.Result);
             databaseAll.AddRange(avatarsDbs);
 
+            updatesDbs.AddRange(taskUpdatePSP.Result);
             updatesDbs.AddRange(taskUpdatePSV.Result);
             updatesDbs.AddRange(taskUpdatePS4.Result);
             databaseAll.AddRange(updatesDbs);
@@ -401,11 +415,7 @@ namespace NPS.Data
                                 Platform = platform,
                                 ContentType = contentType,
                                 TitleId = a[0],
-                                Region = a[1],
-                                TitleName = a[2],
-                                pkg = a[3],
-                                zRif = a[4],
-                                ContentId = a[5],
+                                Region = a[1]
                             };
 
                             // Parse platform/content specific data
@@ -413,13 +423,19 @@ namespace NPS.Data
 
                             // Cleanup data
                             var pkgUrl = itm.pkg.ToLowerInvariant();
-                            if ((pkgUrl.Contains("http://") || pkgUrl.Contains("https://")) && !itm.zRif.ToLower().Contains("missing"))
+                            if (pkgUrl.Contains("http://") || pkgUrl.Contains("https://"))
                             {
-                                if (itm.zRif.ToLower().Contains("not required"))
+                                if (!string.IsNullOrWhiteSpace(itm.zRif))
                                 {
-                                    itm.zRif = string.Empty;
+                                    if (itm.zRif.ToLower().Contains("missing") || itm.zRif.ToLower().Contains("not required"))
+                                    {
+                                        itm.zRif = string.Empty;
+                                    }
                                 }
+
                                 itm.Region = itm.Region.Replace(" ", string.Empty);
+
+                                // Add only downloadable title to result
                                 dbs.Add(itm);
                             }
                         }
@@ -431,7 +447,7 @@ namespace NPS.Data
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error: {e.Message}");
+                    Console.Error.WriteLine($"Error: {e.Message}");
                 }
                 finally
                 {
@@ -468,82 +484,127 @@ namespace NPS.Data
             if (contentType == ContentType.APP)
             {
                 // TODO: improve PSP parsing
-                //itm.Platform = a[2];
+                // Type a[2]
                 itm.TitleName = a[3];
                 itm.pkg = a[4];
                 itm.ContentId = a[5];
                 DateTime.TryParse(a[6], out itm.lastModifyDate);
                 itm.zRif = a[7];
+                // Download .RAP file a[8]
+                ulong.TryParse(a[9], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+                itm.Sha256Sum = a[10];
             }
-            else if (contentType == ContentType.DLC)
+            else
             {
+                itm.TitleName = a[2];
+                itm.pkg = a[3];
                 itm.ContentId = a[4];
                 DateTime.TryParse(a[5], out itm.lastModifyDate);
                 itm.zRif = a[6];
-            }
-            else if (contentType == ContentType.THEME)
-            {
-                itm.zRif = string.Empty;
-                itm.ContentId = a[4];
-                DateTime.TryParse(a[5], out itm.lastModifyDate);
+                // Download .RAP file a[7]
+                ulong.TryParse(a[8], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+                itm.Sha256Sum = a[9];
             }
         }
 
         private void ParseLinePSV(ContentType contentType, Item itm, string[] a)
         {
             // PSV
+            itm.TitleName = a[2];
+
+
             if (contentType == ContentType.APP)
             {
+                itm.pkg = a[3];
+                itm.zRif = a[4];
+                itm.ContentId = a[5];
                 DateTime.TryParse(a[6], out itm.lastModifyDate);
+                itm.TitleNameOriginal = a[7];
+                ulong.TryParse(a[8], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+                itm.Sha256Sum = a[9];
+                itm.FwVersion = a[10];
+                itm.Version = a[11];
             }
             else if (contentType == ContentType.DLC)
             {
+                itm.pkg = a[3];
+                itm.zRif = a[4];
+                itm.ContentId = a[5];
                 DateTime.TryParse(a[6], out itm.lastModifyDate);
+                ulong.TryParse(a[7], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+                itm.Sha256Sum = a[8];
             }
             else if (contentType == ContentType.THEME)
             {
+                itm.pkg = a[3];
+                itm.zRif = a[4];
+                itm.ContentId = a[5];
                 DateTime.TryParse(a[6], out itm.lastModifyDate);
+                ulong.TryParse(a[7], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+                itm.Sha256Sum = a[8];
+                itm.FwVersion = a[9];
             }
             else if (contentType == ContentType.UPDATE)
             {
-                itm.ContentId = null;
-                itm.zRif = string.Empty;
-                itm.TitleName = $"{a[2]} ({a[3]})";
+                itm.Version = a[3];
+                itm.FwVersion = a[4];
                 itm.pkg = a[5];
-                DateTime.TryParse(a[7], out itm.lastModifyDate);
+                DateTime.TryParse(a[6], out itm.lastModifyDate);
+                ulong.TryParse(a[7], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+                itm.Sha256Sum = a[8];
+                itm.TitleName = $"{itm.TitleName} ({itm.Version})";
             }
         }
 
         private void ParseLinePS3(ContentType contentType, Item itm, string[] a)
         {
+            itm.TitleName = a[2];
+            itm.pkg = a[3];
+            itm.zRif = a[4];
+            itm.ContentId = a[5];
             DateTime.TryParse(a[6], out itm.lastModifyDate);
+            // Download .RAP file a[7]
+            ulong.TryParse(a[8], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+            itm.Sha256Sum = a[9];
         }
 
         private void ParseLinePS4(ContentType contentType, Item itm, string[] a)
         {
+            itm.TitleName = a[2];
+            itm.pkg = a[3];
+            itm.zRif = a[4];
+            itm.ContentId = a[5];
             DateTime.TryParse(a[6], out itm.lastModifyDate);
 
             // PS4
             if (contentType == ContentType.UPDATE)
             {
-                itm.ContentId = null;
-                itm.zRif = string.Empty;
-                itm.TitleName = $"{a[2]} ({a[3]})";
+                itm.Version = a[3];
                 itm.pkg = a[5];
+                itm.TitleName = $"{itm.TitleName} ({itm.Version})";
             }
         }
 
         private void ParseLinePSM(ContentType contentType, Item itm, string[] a)
         {
-            itm.ContentId = null;
+            itm.TitleName = a[2];
+            itm.pkg = a[3];
+            itm.zRif = a[4];
+            itm.ContentId = a[5];
             DateTime.TryParse(a[6], out itm.lastModifyDate);
+            ulong.TryParse(a[7], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+            itm.Sha256Sum = a[8];
         }
 
         private void ParseLinePSX(ContentType contentType, Item itm, string[] a)
         {
-            itm.zRif = string.Empty;
+            itm.TitleName = a[2];
+            itm.pkg = a[3];
             itm.ContentId = a[4];
             DateTime.TryParse(a[5], out itm.lastModifyDate);
+            itm.TitleNameOriginal = a[6];
+            ulong.TryParse(a[7], numberStyleFileSize, CultureInfo.InvariantCulture, out itm.FileSize);
+            itm.Sha256Sum = a[8];
         }
 
     } // class Database

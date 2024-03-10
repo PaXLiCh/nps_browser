@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -33,6 +34,7 @@ namespace NPS
         private readonly List<DownloadWorker> downloads = new List<DownloadWorker>();
         private Release[] releases = null;
 
+        // Form
         public BrowserForm()
         {
             InitializeComponent();
@@ -61,7 +63,6 @@ namespace NPS
                 toolStripStatusLabel.Text = "Ready";
                 toolStripProgressBar.Visible = false;
                 UpdateUiAfterDatabaseSync();
-
             }));
         }
 
@@ -271,6 +272,7 @@ namespace NPS
                 cmbType.CheckBoxItems[id].Checked = true;
             }
         }
+
         private void CmbRegion_CheckBoxCheckedChanged(object sender, EventArgs e)
         {
             UpdateSearch();
@@ -413,15 +415,25 @@ namespace NPS
         {
             string url = releases?[0]?.url;
             if (!string.IsNullOrEmpty(url))
-                System.Diagnostics.Process.Start(url);
+                Process.Start(url);
         }
 
-        private bool itemMatchesSearchEntries(Item item, List<List<string>> searchEntries)
+        private bool IsTitleMatchesSearchEntries(
+            [NotNull] Item title,
+            [NotNull] IReadOnlyCollection<List<string>> searchEntries)
         {
+            if (searchEntries == null || searchEntries.Count == 0)
+            {
+                return false;
+            }
+
+            var titleName = title.TitleName?.ToLowerInvariant();
+            var titleId = title.TitleId?.ToLowerInvariant();
+
             int searchEntryMatches = 0;
             foreach (List<string> searchEntry in searchEntries)
             {
-                bool dirty = false;
+                bool isNotMatch = false;
 
                 foreach (string searchTerm in searchEntry)
                 {
@@ -431,27 +443,32 @@ namespace NPS
                     }
                     if (searchTerm.StartsWith("-"))
                     {
-                        if (item.TitleName.ToLower().Contains(searchTerm.Substring(1).ToLower())
-                            // || ( item.ContentId.ToLower().Contains( searchTerm.Substring( 1 ).ToLower() ) ) // Causing a crash when the game doesn't have a ContentId
-                            )
+                        // Negative term
+                        string negativeTerm = searchTerm.Substring(1);
+                        if ((titleName != null && titleName.Contains(negativeTerm))
+                            || (titleId != null && titleId.Contains(negativeTerm)))
                         {
-                            dirty = true;
+                            // Exclude title from result
+                            isNotMatch = true;
                             break;
                         }
                     }
-                    else if ((!item.TitleName.ToLower().Contains(searchTerm.ToLower())) &&
-                        (!item.TitleId.ToLower().Contains(searchTerm.ToLower())))
+                    else if (
+                        (titleName == null || (titleName != null && !titleName.Contains(searchTerm)))
+                        &&
+                        (titleId == null || (titleId != null && !titleId.Contains(searchTerm)))
+                        )
                     {
-                        dirty = true;
+                        isNotMatch = true;
                     }
 
                 }
-                if (!dirty)
+                if (!isNotMatch)
                 {
                     ++searchEntryMatches;
                 }
             }
-            return searchEntryMatches > 0 && searchEntries.Count > 0;
+            return searchEntryMatches > 0;
         }
 
 
@@ -480,13 +497,13 @@ namespace NPS
 
                 List<string> searchTerms = new List<string>();
                 string[] rawTerms = entry?.Split(' ');
-                foreach (string terms in rawTerms)
+                foreach (string term in rawTerms)
                 {
-                    if (string.IsNullOrWhiteSpace(terms))
+                    if (string.IsNullOrWhiteSpace(term))
                     {
                         continue;
                     }
-                    searchTerms.Add(terms);
+                    searchTerms.Add(term);
                 }
                 searchEntries.Add(searchTerms);
             }
@@ -500,13 +517,13 @@ namespace NPS
                 return;
             }
 
-            List<List<string>> searchEntries = ParseSearchQuery(txtSearch.Text);
+            List<List<string>> searchEntries = ParseSearchQuery(txtSearch.Text.ToLowerInvariant());
 
             List<Item> itms = new List<Item>();
 
             foreach (var item in currentDatabase)
             {
-                bool dirty = searchEntries.Count != 0 && !itemMatchesSearchEntries(item, searchEntries);
+                bool dirty = searchEntries.Count != 0 && !IsTitleMatchesSearchEntries(item, searchEntries);
 
                 if (!dirty)
                 {
@@ -748,7 +765,7 @@ namespace NPS
         private void lnkOpenRenaScene_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             //var u = new Uri("https://www.youtube.com/results?search_query=dead or alive");
-            System.Diagnostics.Process.Start(lnkSearchAboutTitle.Tag.ToString());
+            Process.Start(lnkSearchAboutTitle.Tag.ToString());
         }
 
         // lstTitles
@@ -763,14 +780,25 @@ namespace NPS
             {
                 if (string.IsNullOrEmpty(itm.zRif))
                 {
+                    lblPs3LicenseType.Visible = true;
                     lblPs3LicenseType.BackColor = Color.LawnGreen;
-                    lblPs3LicenseType.Text = "RAP NOT REQUIRED, use ReActPSN/PSNPatch";
+                    lblPs3LicenseType.Text = "RAP NOT REQUIRED,\nuse ReActPSN/PSNPatch";
                 }
-                else if (itm.zRif.ToLower().Contains("UNLOCK/LICENSE BY DLC".ToLower())) lblPs3LicenseType.Text = "UNLOCK BY DLC";
-                else lblPs3LicenseType.Text = string.Empty;
+                else if (itm.zRif.Contains("UNLOCK") || itm.zRif.Contains("DLC"))
+                {
+                    lblPs3LicenseType.Visible = true;
+                    lblPs3LicenseType.BackColor = Color.YellowGreen;
+                    lblPs3LicenseType.Text = "UNLOCK BY DLC";
+                }
+                else
+                {
+                    lblPs3LicenseType.Visible = false;
+                    lblPs3LicenseType.Text = string.Empty;
+                }
             }
             else
             {
+                lblPs3LicenseType.Visible = false;
                 lblPs3LicenseType.Text = string.Empty;
             }
         }
@@ -846,7 +874,8 @@ namespace NPS
                         if (d.currentDownload == a)
                         {
                             contains = true;
-                            break; //already downloading
+                            // Already downloading
+                            break;
                         }
                     }
 
@@ -1015,29 +1044,40 @@ namespace NPS
 
             await Task.Run(() =>
             {
-                StoreInfo storeInfo = StoreInfo.GetStoreInfo(itm, ImagesDownloadedHandler);
-
-                var path = Path.Combine(itm.ImagesDir, "1.png");
-                System.Drawing.Image image = null;
-
-                // We have some info about title
-                string infoText = storeInfo.ToString();
-                // Hope we load image
-                if (File.Exists(path))
+                try
                 {
-                    image = System.Drawing.Image.FromFile(path);
-                }
-                Invoke(new Action(() =>
-                {
-                    if (image != null)
+                    StoreInfo storeInfo = StoreInfo.GetStoreInfo(itm, ImagesDownloadedHandler);
+
+                    var path = Path.Combine(itm.ImagesDir, "1.png");
+                    System.Drawing.Image image = null;
+
+                    // We have some info about title
+                    string infoText = storeInfo.ToString();
+                    // Hope we load image
+                    if (File.Exists(path))
                     {
-                        ptbCover.Image = image;
+                        image = System.Drawing.Image.FromFile(path);
                     }
-                    txtPkgInfo.Text = infoText;
-                    //lnkSearchAboutTitle.Tag = r.Url;
-                    lnkSearchAboutTitle.Tag = $"https://www.google.com/search?safe=off&source=lnms&tbm=isch&sa=X&biw=785&bih=698&q={itm.TitleName}%20{itm.Platform}";
-                    lnkSearchAboutTitle.Visible = true;
-                }));
+                    Invoke(new Action(() =>
+                    {
+                        if (image != null)
+                        {
+                            ptbCover.Image = image;
+                        }
+                        txtPkgInfo.Text = infoText;
+                        //lnkSearchAboutTitle.Tag = r.Url;
+                        lnkSearchAboutTitle.Tag = $"https://www.google.com/search?safe=off&source=lnms&tbm=isch&sa=X&biw=785&bih=698&q={itm.TitleName}%20{itm.Platform}";
+                        lnkSearchAboutTitle.Visible = true;
+                    }));
+                }
+                catch (OperationCanceledException)
+                {
+                    // do nothing
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
             }, tokenSource.Token);
         }
 
@@ -1086,7 +1126,6 @@ namespace NPS
             }
         }
 
-
         private void lstTitles_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -1125,7 +1164,7 @@ namespace NPS
 
         }
 
-        private void BtnOpenDirectory(object sender, EventArgs e)
+        private void BtnOpenDirectoryClick(object sender, EventArgs e)
         {
             if (lstDownloadStatus.SelectedItems.Count == 0) return;
             var worker = lstDownloadStatus.SelectedItems[0];
@@ -1133,7 +1172,7 @@ namespace NPS
 
             if (File.Exists(itm.Pkg))
             {
-                System.Diagnostics.Process.Start("explorer.exe", "/select, " + itm.Pkg);
+                Process.Start("explorer.exe", $"/select, {itm.Pkg}");
             }
         }
 

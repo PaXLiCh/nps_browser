@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -23,9 +24,9 @@ namespace NPS.Helpers
         /// Returns short string with content size info.
         /// </summary>
         /// <param name="sizeInBytes"> Size of content in bytes. </param>
-        /// <returns> Short rounded size and unit. </returns>
+        /// <returns> Short rounded size and unit e.g. "1.23 MiB". </returns>
         [NotNull]
-        public static (double, string) GetSizeShort(double sizeInBytes)
+        public static (double sizeShort, string unit) GetSizeShort(double sizeInBytes)
         {
             var i = 0;
             while (sizeInBytes >= 1024.0 && i < 8)
@@ -40,9 +41,9 @@ namespace NPS.Helpers
         /// Returns string with size of file at specified URI.
         /// </summary>
         /// <param name="uri"> URI of remote file. </param>
-        /// <returns> String with size of file e.g. "1.23 MiB". </returns>
+        /// <returns> Size of file in bytes. </returns>
         [NotNull]
-        public static string GetSize([NotNull] string uri)
+        public static ulong GetSize([NotNull] string uri)
         {
             try
             {
@@ -50,15 +51,14 @@ namespace NPS.Helpers
                 webRequest.Proxy = Settings.Instance.proxy;
                 webRequest.Method = "HEAD";
 
-                string s;
+                ulong size = 0;
                 using (var webResponse = webRequest.GetResponse())
                 {
                     var fileSize = webResponse.Headers.Get("Content-Length");
                     webResponse.Close();
-                    var fileSizeInMegaByte = GetSizeShort(Convert.ToDouble(fileSize));
-                    s = $"{fileSizeInMegaByte.Item1} {fileSizeInMegaByte.Item2}";
+                    size = Convert.ToUInt64(fileSize, CultureInfo.InvariantCulture);
                 }
-                return s;
+                return size;
             }
             catch (WebException e)
             {
@@ -66,7 +66,7 @@ namespace NPS.Helpers
                 {
                     // errorResponse not of type HttpWebResponse
                     Console.WriteLine($"Error: {e.Message}");
-                    return string.Empty;
+                    return 0UL;
                 }
 
                 string responseContent = string.Empty;
@@ -91,7 +91,7 @@ namespace NPS.Helpers
                 Console.WriteLine($"Error: {e.Message}");
             }
 
-            return string.Empty;
+            return 0UL;
         }
 
 

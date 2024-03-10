@@ -4,6 +4,8 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 
+using NPS.Data;
+
 namespace NPS
 {
     public partial class CompPackForm : Form

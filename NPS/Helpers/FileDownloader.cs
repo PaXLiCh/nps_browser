@@ -12,14 +12,15 @@ namespace NPS.Helpers
     public class FileDownloader
     {
         private static readonly Lazy<FileDownloader> _instance = new Lazy<FileDownloader>();
+
         public static FileDownloader Instance => _instance.Value;
 
 
-        private static SemaphoreSlim _semaphore = new SemaphoreSlim(Settings.Instance.simultaneousDl, Settings.Instance.simultaneousDl);
+        private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(Settings.Instance.simultaneousDl, Settings.Instance.simultaneousDl);
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public delegate void DownloadHandler(FileDownloader sender, bool isOk, string uri, string localPath);
+        public delegate void DownloadHandler([NotNull] FileDownloader sender, bool isOk, [NotNull] string uri, [NotNull] string localPath);
 
         public event DownloadHandler FileDownloaded;
 
@@ -28,15 +29,19 @@ namespace NPS.Helpers
         /// Skip downloading if local file exist.
         /// </summary>
         /// <param name="uri"> <see cref="Uri"/> of remote file. </param>
-        /// <param name="localDir"> Directory path to downloaded file. </param>
+        /// <param name="localDir"> Local directory path to downloaded file. </param>
         /// <param name="onFileDownloaded"> Download handler. </param>
-        public void DownloadFile([NotNull] Uri uri, [NotNull] string localDir, DownloadHandler onFileDownloaded)
+        public void DownloadFile([NotNull] Uri uri, [NotNull] string localDir, [CanBeNull] DownloadHandler onFileDownloaded)
         {
             var fileName = Path.GetFileName(uri.LocalPath);
             DownloadFile(uri, localDir, fileName, onFileDownloaded, _cancellationTokenSource.Token);
         }
 
-        public void DownloadFile([NotNull] Uri uri, [NotNull] string localDir, [NotNull] string localName, DownloadHandler onFileDownloaded)
+        public void DownloadFile(
+            [NotNull] Uri uri,
+            [NotNull] string localDir,
+            [NotNull] string localName,
+            [CanBeNull] DownloadHandler onFileDownloaded)
         {
             DownloadFile(uri, localDir, localName, onFileDownloaded, _cancellationTokenSource.Token);
         }
@@ -46,10 +51,15 @@ namespace NPS.Helpers
         /// Skip downloading if local file exist.
         /// </summary>
         /// <param name="uri"> <see cref="Uri"/> of remote file. </param>
-        /// <param name="localDir"> Directory path to downloaded file. </param>
+        /// <param name="localDir"> Local directory path to downloaded file. </param>
         /// <param name="localName"> Name of downloaded file. </param>
         /// <param name="onFileDownloaded"> Download handler. </param>
-        public Task DownloadFile([NotNull] Uri uri, [NotNull] string localDir, [NotNull] string localName, DownloadHandler onFileDownloaded, CancellationToken cancellationToken)
+        public Task DownloadFile(
+            [NotNull] Uri uri,
+            [NotNull] string localDir,
+            [NotNull] string localName,
+            [CanBeNull] DownloadHandler onFileDownloaded,
+            CancellationToken cancellationToken)
         {
             var task = Task.Run(() =>
             {
@@ -97,5 +107,6 @@ namespace NPS.Helpers
 
             return task;
         }
-    }
-}
+
+    } // class FileDownloader
+} // namespace

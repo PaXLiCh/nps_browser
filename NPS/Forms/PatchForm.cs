@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 
+using NPS.Data;
+
 namespace NPS
 {
     public partial class PatchForm : Form

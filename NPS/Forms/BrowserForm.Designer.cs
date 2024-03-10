@@ -82,6 +82,8 @@ namespace NPS
             this.splMain = new System.Windows.Forms.SplitContainer();
             this.splList = new System.Windows.Forms.SplitContainer();
             this.pnlSearch = new System.Windows.Forms.Panel();
+            this.cmbType = new PresentationControls.CheckBoxComboBox();
+            this.cmbRegion = new PresentationControls.CheckBoxComboBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.rbnAvatars = new System.Windows.Forms.RadioButton();
             this.rbnThemes = new System.Windows.Forms.RadioButton();
@@ -94,7 +96,6 @@ namespace NPS
             this.chkUnless = new System.Windows.Forms.CheckBox();
             this.chkHideDownloaded = new System.Windows.Forms.CheckBox();
             this.lblPs3LicenseType = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanelDownloads = new System.Windows.Forms.FlowLayoutPanel();
             this.btnDownloadResume = new System.Windows.Forms.Button();
             this.btnDownloadPause = new System.Windows.Forms.Button();
@@ -103,8 +104,6 @@ namespace NPS
             this.btnDownloadPauseAll = new System.Windows.Forms.Button();
             this.btnOpenDirectory = new System.Windows.Forms.Button();
             this.btnDownloadResumeAll = new System.Windows.Forms.Button();
-            this.cmbType = new PresentationControls.CheckBoxComboBox();
-            this.cmbRegion = new PresentationControls.CheckBoxComboBox();
             this.lstDownloadStatus = new ListViewEmbeddedControls.ListViewEx();
             this.colDownloadTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colDownloadSpeed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -146,7 +145,7 @@ namespace NPS
             // toolStripStatusLabel
             // 
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(887, 17);
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(918, 17);
             this.toolStripStatusLabel.Spring = true;
             this.toolStripStatusLabel.Text = "Ready";
             this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -593,7 +592,6 @@ namespace NPS
             this.splList.Panel2.Controls.Add(this.lblPs3LicenseType);
             this.splList.Panel2.Controls.Add(this.btnDownload);
             this.splList.Panel2.Controls.Add(this.ptbCover);
-            this.splList.Panel2.Controls.Add(this.panel1);
             this.splList.Panel2.Controls.Add(this.lnkSearchAboutTitle);
             this.splList.Panel2.Controls.Add(this.txtPkgInfo);
             this.splList.Size = new System.Drawing.Size(1073, 450);
@@ -612,6 +610,34 @@ namespace NPS
             this.pnlSearch.Name = "pnlSearch";
             this.pnlSearch.Size = new System.Drawing.Size(851, 52);
             this.pnlSearch.TabIndex = 17;
+            // 
+            // cmbType
+            // 
+            this.cmbType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            checkBoxProperties1.AutoSize = true;
+            checkBoxProperties1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cmbType.CheckBoxProperties = checkBoxProperties1;
+            this.cmbType.DisplayMemberSingleItem = "";
+            this.cmbType.FormattingEnabled = true;
+            this.cmbType.Location = new System.Drawing.Point(549, 3);
+            this.cmbType.Name = "cmbType";
+            this.cmbType.Size = new System.Drawing.Size(152, 21);
+            this.cmbType.TabIndex = 20;
+            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
+            // 
+            // cmbRegion
+            // 
+            this.cmbRegion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            checkBoxProperties2.AutoSize = true;
+            checkBoxProperties2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cmbRegion.CheckBoxProperties = checkBoxProperties2;
+            this.cmbRegion.DisplayMemberSingleItem = "";
+            this.cmbRegion.FormattingEnabled = true;
+            this.cmbRegion.Location = new System.Drawing.Point(707, 3);
+            this.cmbRegion.MaxDropDownItems = 5;
+            this.cmbRegion.Name = "cmbRegion";
+            this.cmbRegion.Size = new System.Drawing.Size(138, 21);
+            this.cmbRegion.TabIndex = 19;
             // 
             // flowLayoutPanel1
             // 
@@ -750,18 +776,15 @@ namespace NPS
             // 
             // lblPs3LicenseType
             // 
-            this.lblPs3LicenseType.AutoSize = true;
-            this.lblPs3LicenseType.Location = new System.Drawing.Point(3, 379);
+            this.lblPs3LicenseType.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblPs3LicenseType.Location = new System.Drawing.Point(0, 43);
             this.lblPs3LicenseType.Name = "lblPs3LicenseType";
-            this.lblPs3LicenseType.Size = new System.Drawing.Size(0, 13);
+            this.lblPs3LicenseType.Size = new System.Drawing.Size(215, 30);
             this.lblPs3LicenseType.TabIndex = 19;
-            // 
-            // panel1
-            // 
-            this.panel1.Location = new System.Drawing.Point(2, 62);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(218, 30);
-            this.panel1.TabIndex = 18;
+            this.lblPs3LicenseType.Text = "PS3LicenseType";
+            this.lblPs3LicenseType.Visible = false;
             // 
             // flowLayoutPanelDownloads
             // 
@@ -838,7 +861,7 @@ namespace NPS
             this.btnOpenDirectory.Size = new System.Drawing.Size(39, 28);
             this.btnOpenDirectory.TabIndex = 4;
             this.btnOpenDirectory.UseVisualStyleBackColor = true;
-            this.btnOpenDirectory.Click += new System.EventHandler(this.BtnOpenDirectory);
+            this.btnOpenDirectory.Click += new System.EventHandler(this.BtnOpenDirectoryClick);
             // 
             // btnDownloadResumeAll
             // 
@@ -852,34 +875,6 @@ namespace NPS
             this.btnDownloadResumeAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnDownloadResumeAll.UseVisualStyleBackColor = true;
             this.btnDownloadResumeAll.Click += new System.EventHandler(this.ResumeAllBtnClick);
-            // 
-            // cmbType
-            // 
-            this.cmbType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            checkBoxProperties1.AutoSize = true;
-            checkBoxProperties1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cmbType.CheckBoxProperties = checkBoxProperties1;
-            this.cmbType.DisplayMemberSingleItem = "";
-            this.cmbType.FormattingEnabled = true;
-            this.cmbType.Location = new System.Drawing.Point(549, 3);
-            this.cmbType.Name = "cmbType";
-            this.cmbType.Size = new System.Drawing.Size(152, 21);
-            this.cmbType.TabIndex = 20;
-            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
-            // 
-            // cmbRegion
-            // 
-            this.cmbRegion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            checkBoxProperties2.AutoSize = true;
-            checkBoxProperties2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cmbRegion.CheckBoxProperties = checkBoxProperties2;
-            this.cmbRegion.DisplayMemberSingleItem = "";
-            this.cmbRegion.FormattingEnabled = true;
-            this.cmbRegion.Location = new System.Drawing.Point(707, 3);
-            this.cmbRegion.MaxDropDownItems = 5;
-            this.cmbRegion.Name = "cmbRegion";
-            this.cmbRegion.Size = new System.Drawing.Size(138, 21);
-            this.cmbRegion.TabIndex = 19;
             // 
             // lstDownloadStatus
             // 
@@ -1009,7 +1004,6 @@ namespace NPS
         private System.Windows.Forms.SplitContainer splList;
         private System.Windows.Forms.Panel pnlSearch;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.Label lblCount;

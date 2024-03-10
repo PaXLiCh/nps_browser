@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 using JetBrains.Annotations;
 
-namespace NPS
+namespace NPS.Data
 {
     public enum Platform
     {
@@ -31,7 +31,15 @@ namespace NPS
     [Serializable]
     public class Item : IEquatable<Item>
     {
-        public string TitleId, Region, TitleName, zRif, pkg;
+        public string TitleId, Region, TitleName, zRif;
+
+        public string TitleNameOriginal;
+
+        /// <summary>
+        /// URL to download PKG file.
+        /// </summary>
+        public string pkg;
+
         public DateTime lastModifyDate = DateTime.MinValue;
 
         public bool ItsCompPack = false;
@@ -42,6 +50,20 @@ namespace NPS
 
         public string offset = string.Empty;
         public List<Item> DlcItm = new List<Item>();
+
+        public ulong FileSize = 0;
+
+        public string Sha256Sum;
+
+        /// <summary>
+        /// Required FW version.
+        /// </summary>
+        public string FwVersion;
+
+        /// <summary>
+        /// Content version.
+        /// </summary>
+        public string Version;
 
         /// <summary>
         /// Gets number of addons for this title. <seealso cref="DlcItm"/>.
@@ -75,7 +97,7 @@ namespace NPS
                 {
                     res = TitleName;
                 }
-                else if (string.IsNullOrEmpty(ContentId))
+                else if (!IsContentIdSpecified)
                 {
                     res = TitleId;
                 }
@@ -95,6 +117,21 @@ namespace NPS
             }
         }
 
+        /// <summary>
+        /// Gets package file name with extension.
+        /// <seealso cref="PackageFileName"/>, <seealso cref="PackageFileExtension"/>
+        /// </summary>
+        public string PackageFileNameWithExtension
+        {
+            get
+            {
+                return string.Concat(PackageFileName, PackageFileExtension);
+            }
+        }
+
+        /// <summary>
+        /// Gets region code for this package.
+        /// </summary>
         public string RegionCode
         {
             get
@@ -107,19 +144,103 @@ namespace NPS
             }
         }
 
-        public string PkgsDir
+        /// <summary>
+        /// Gets directory in <see cref="Settings.downloadDir"/>> for this package to store unpacked rePatch content.
+        /// </summary>
+        public string RePatchDir
         {
-            get { return Path.Combine(Settings.Instance.GetDownloadsDirPackages(Platform), ContentType.ToString().ToLowerInvariant()); }
+            get
+            {
+                return Path.Combine(Settings.Instance.GetDownloadsDirRePatch(Platform), TitleId ?? "UNKNOWN");
+            }
         }
 
+        /// <summary>
+        /// Gets directory in <see cref="Settings.downloadDir"/>> for this package to store unpacked reAddcont content.
+        /// </summary>
+        public string ReAddcontDir
+        {
+            get
+            {
+                return Path.Combine(Settings.Instance.GetDownloadsDirReAddons(Platform), TitleId ?? "UNKNOWN");
+            }
+        }
+
+        /// <summary>
+        /// Gets directory in <see cref="Settings.downloadDir"/> for this package where stored main unpacked content.
+        /// Downloads\Platform\ContentType\TitleID.
+        /// </summary>
+        public string UnpackedContentDir
+        {
+            get { return Path.Combine(Settings.Instance.GetDownloadsDirUnpacked(Platform, ContentType), TitleId ?? "UNKNOWN"); }
+        }
+
+        /// <summary>
+        /// Gets directory in <see cref="Settings.downloadDir"/>> where package file stored.
+        /// </summary>
+        public string PkgsDir
+        {
+            get { return Settings.Instance.GetDownloadsDirPackages(Platform, ContentType); }
+        }
+
+        /// <summary>
+        /// Gets directory in <see cref="Settings.downloadDir"/>> where images for this package stored.
+        /// </summary>
         public string ImagesDir
         {
             get { return Path.Combine(Settings.Instance.GetDownloadsDirImages(Platform), TitleId ?? "UNKNOWN"); }
         }
 
+        /// <summary>
+        /// Gets directory in <see cref="Settings.downloadDir"/>> where promotional materials for this package stored.
+        /// </summary>
         public string PromosDir
         {
             get { return Path.Combine(Settings.Instance.GetDownloadsDirPromos(Platform), TitleId ?? "UNKNOWN"); }
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if a valid content identifier <see cref="ContentId"/> is specified.
+        /// </summary>
+        public bool IsContentIdSpecified
+        {
+            get
+            {
+                bool isBad;
+                if (string.IsNullOrWhiteSpace(ContentId))
+                {
+                    isBad = true;
+                }
+                else
+                {
+                    isBad = ContentId.ToLowerInvariant().Equals("missing");
+                }
+                return !isBad;
+            }
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if a valid zRif identifier <see cref="zRif"/> is specified.
+        /// </summary>
+        public bool IsZRifSpecified
+        {
+            get
+            {
+                bool isBad;
+                if (string.IsNullOrWhiteSpace(zRif))
+                {
+                    isBad = true;
+                }
+                else if (zRif.ToLowerInvariant().Contains("not required"))
+                {
+                    isBad = true;
+                }
+                else
+                {
+                    isBad = zRif.Length % 2 > 0;
+                }
+                return !isBad;
+            }
         }
 
         public Item()
@@ -170,5 +291,6 @@ namespace NPS
                    //&& TitleName == other.TitleName
                    && PackageFileName == other.PackageFileName;
         }
-    }
-}
+
+    } // class
+} // namespace

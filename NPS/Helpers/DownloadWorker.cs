@@ -9,7 +9,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Compression;
+
+using NPS.Data;
 using NPS.Helpers;
+using JetBrains.Annotations;
 
 namespace NPS
 {
@@ -20,10 +23,10 @@ namespace NPS
         private DateTime lastUpdate;
         private long lastBytes;
 
-        private string pkgOutputPath;
+        private string _packageSavePath;
 
-        private long totalSize = 0;
-        private long completedSize = 0;
+        private long _fileSizeTotal = 0;
+        private long _fileSizeDownloaded = 0;
         private long _downloadSpeed = 0;
 
         [NonSerialized]
@@ -33,7 +36,7 @@ namespace NPS
         private Process _unpackProcess = null;
 
         [NonSerialized]
-        private Timer timer = new Timer();
+        private Timer timer;
 
         [NonSerialized]
         private Form formCaller;
@@ -51,7 +54,8 @@ namespace NPS
         public ListViewItem lvi;
         public int progressValue = 0;
         public WorkerStatus Status { get; private set; }
-        public string Pkg => pkgOutputPath;
+
+        public string Pkg => _packageSavePath;
 
 
         public DownloadWorker(Item itm, Form f)
@@ -63,7 +67,10 @@ namespace NPS
             lvi.SubItems.Add("");
             lvi.Tag = this;
 
-            timer.Interval = 1000;
+            timer = new Timer
+            {
+                Interval = 1000
+            };
             timer.Tick += Timer_Tick;
             formCaller = f;
             Status = WorkerStatus.Queued;
@@ -104,8 +111,8 @@ namespace NPS
 
             Status = WorkerStatus.Running;
 
-            string pkgOutputDirectory = Path.Combine(Settings.Instance.downloadDir, currentDownload.PkgsDir);
-            pkgOutputPath = Path.Combine(pkgOutputDirectory, currentDownload.PackageFileName + currentDownload.PackageFileExtension);
+            string pkgOutputDirectory = currentDownload.PkgsDir;
+            _packageSavePath = Path.Combine(pkgOutputDirectory, currentDownload.PackageFileNameWithExtension);
             if (!Directory.Exists(pkgOutputDirectory))
             {
                 Directory.CreateDirectory(pkgOutputDirectory);
@@ -113,7 +120,7 @@ namespace NPS
 
             Task.Run(() =>
             {
-                DownloadFile(currentDownload.pkg, pkgOutputPath);
+                DownloadFile(currentDownload.pkg, _packageSavePath);
             });
         }
 
@@ -179,10 +186,10 @@ namespace NPS
             {
                 try
                 {
-                    if (File.Exists(pkgOutputPath))
+                    if (File.Exists(_packageSavePath))
                     {
                         System.Threading.Thread.Sleep(400);
-                        File.Delete(pkgOutputPath);
+                        File.Delete(_packageSavePath);
                     }
                 }
                 catch { i = 5; }
@@ -248,12 +255,12 @@ namespace NPS
 
             var replacements = new Dictionary<string, string>
             {
-                ["{pkgfile}"] = $"\"{pkgOutputPath}\"",
+                ["{pkgfile}"] = $"\"{_packageSavePath}\"",
                 ["{titleid}"] = currentDownload.TitleId.Substring(0, 9),
-                ["{contentid}"] = currentDownload.ContentId,
+                ["{contentid}"] = currentDownload.IsContentIdSpecified ? currentDownload.ContentId : string.Empty,
                 ["{gametitle}"] = tempName,
                 ["{region}"] = currentDownload.Region,
-                ["{zrifkey}"] = currentDownload.zRif,
+                ["{zrifkey}"] = currentDownload.IsZRifSpecified ? currentDownload.zRif : string.Empty,
                 ["{fwversion}"] = fwVersion,
                 ["{dlc}"] = dlc,
                 ["  "] = " "
@@ -261,7 +268,7 @@ namespace NPS
 
             ProcessStartInfo a = new ProcessStartInfo
             {
-                WorkingDirectory = Settings.Instance.downloadDir + Path.DirectorySeparatorChar,
+                WorkingDirectory = Settings.Instance.GetDownloadsDir(currentDownload.Platform),
                 FileName = string.Format("\"{0}\"", Settings.Instance.unpackerPath),
                 Arguments = replacements.Aggregate(Settings.Instance.unpackerParams.ToLowerInvariant(), (str, rep) => str.Replace(rep.Key, rep.Value)),
                 WindowStyle = ProcessWindowStyle.Hidden,
@@ -296,18 +303,20 @@ namespace NPS
             {
                 lvi.SubItems[2].Text = "Processing";
 
-                //if (Directory.Exists(Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId)))
+                var rePatchDir = currentDownload.RePatchDir;
+
+                //if (Directory.Exists(rePatchDir)
                 //{
-                //    Directory.Delete(Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId), true);
+                //    Directory.Delete(rePatchDir, true);
                 //}
 
-                using (var archive = ZipFile.OpenRead(pkgOutputPath))
+                using (var archive = ZipFile.OpenRead(_packageSavePath))
                 {
                     foreach (var entry in archive.Entries)
                     {
                         if (entry.Length == 0) continue;
 
-                        string file = Path.Combine(Settings.Instance.downloadDir, "rePatch", currentDownload.TitleId, entry.FullName);
+                        string file = Path.Combine(rePatchDir, entry.FullName);
                         var dir = Path.GetDirectoryName(file);
 
                         if (!Directory.Exists(dir))
@@ -350,7 +359,7 @@ namespace NPS
             {
                 lvi.SubItems[2].Text = "Processing";
                 // jon: custom PS3 file placement
-                string gamePath = Path.Combine(Settings.Instance.downloadDir, "PS3", currentDownload.TitleId);
+                string gamePath = Path.Combine(Settings.Instance.GetDownloadsDir(currentDownload.Platform), currentDownload.TitleId);
                 string path = Path.Combine(gamePath, "packages");
                 // jon: end
                 if (!Directory.Exists(path))
@@ -364,16 +373,14 @@ namespace NPS
                 if (currentDownload.ContentType == ContentType.UPDATE)
                     newPkgName = "[UPDATE] " + newPkgName;
 
-                File.Move(pkgOutputPath, Path.Combine(path, newPkgName + currentDownload.PackageFileExtension));
+                File.Move(_packageSavePath, Path.Combine(path, newPkgName + currentDownload.PackageFileExtension));
 
                 // jon: changing to custom directory location
                 path = Path.Combine(gamePath, "exdata");
                 // jon: end
 
-                if (!string.IsNullOrEmpty(currentDownload.ContentId)
-                    && currentDownload.ContentId.ToLowerInvariant() != "missing"
-                    && currentDownload.zRif.ToLowerInvariant() != "not required"
-                    && currentDownload.zRif.Length % 2 == 0)
+                if (currentDownload.IsContentIdSpecified
+                    && currentDownload.IsZRifSpecified)
                 {
                     if (!Directory.Exists(path))
                     {
@@ -431,6 +438,8 @@ namespace NPS
                     {
                         DeletePkg();
                     }
+
+                    DecryptVita();
                 }));
             }
             else
@@ -499,7 +508,7 @@ namespace NPS
 
             var replacements = new Dictionary<string, string>
             {
-                ["{pkgfile}"] = $"\"{pkgOutputPath}\"",
+                ["{pkgfile}"] = $"\"{_packageSavePath}\"",
                 ["{pathIn}"] = {},
                 ["{pathOut}"] = { },
                 ["{titleid}"] = currentDownload.TitleId.Substring(0, 9),
@@ -538,32 +547,30 @@ namespace NPS
             _unpackProcess.BeginErrorReadLine();
         }
 
-        private void DownloadFile(string sSourceURL, string sDestinationPath)
+        private void DownloadFile([NotNull] string sSourceURL, [NotNull] string sDestinationPath)
         {
             try
             {
-                long iFileSize = 0;
-                int iBufferSize = 1024;
-                iBufferSize *= 1000;
-                long iExistLen = 0;
+                long fileSizeExist = 0L;
 
                 if (File.Exists(sDestinationPath))
                 {
                     FileInfo fINfo = new FileInfo(sDestinationPath);
-                    iExistLen = fINfo.Length;
+                    fileSizeExist = fINfo.Length;
+                    // TODO: check SHA256
                 }
-                ;
-                if (iExistLen > 0)
+
+                if (fileSizeExist > 0L)
                 {
                     saveFileStream = new FileStream(sDestinationPath,
-                      FileMode.Append, FileAccess.Write,
-                      FileShare.ReadWrite);
+                        FileMode.Append, FileAccess.Write,
+                        FileShare.ReadWrite);
                 }
                 else
                 {
                     saveFileStream = new FileStream(sDestinationPath,
-                      FileMode.Create, FileAccess.Write,
-                      FileShare.ReadWrite);
+                        FileMode.Create, FileAccess.Write,
+                        FileShare.ReadWrite);
                 }
 
                 HttpWebRequest hwRq;
@@ -571,20 +578,22 @@ namespace NPS
                 var uri = new Uri(sSourceURL);
                 hwRq = (HttpWebRequest)WebRequest.Create(uri);
                 hwRq.Proxy = Settings.Instance.proxy;
+
                 hwRes = (HttpWebResponse)hwRq.GetResponse();
                 hwRes.Close();
 
-                totalSize = hwRes.ContentLength;
-                if (totalSize != iExistLen)
+                int iBufferSize = 1024;
+                iBufferSize *= 1000;
+
+                _fileSizeTotal = hwRes.ContentLength;
+                if (_fileSizeTotal > fileSizeExist)
                 {
                     hwRq = (HttpWebRequest)WebRequest.Create(uri);
                     hwRq.Proxy = Settings.Instance.proxy;
-                    hwRq.AddRange(iExistLen);
+                    hwRq.AddRange(fileSizeExist);
 
                     hwRes = (HttpWebResponse)hwRq.GetResponse();
                     smRespStream = hwRes.GetResponseStream();
-
-                    iFileSize = hwRes.ContentLength;
 
                     byte[] downBuffer = new byte[iBufferSize];
                     int iByteSize;
@@ -594,29 +603,28 @@ namespace NPS
 
                         saveFileStream.Write(downBuffer, 0, iByteSize);
 
-                        completedSize = saveFileStream.Position;
+                        _fileSizeDownloaded = saveFileStream.Position;
 
                         if (lastBytes == 0)
                         {
                             lastUpdate = DateTime.Now;
-                            lastBytes = completedSize;
+                            lastBytes = _fileSizeDownloaded;
                         }
                         else
                         {
                             var now = DateTime.Now;
                             var timeSpan = now - lastUpdate;
-                            var bytesChange = completedSize - lastBytes;
+                            var bytesChange = _fileSizeDownloaded - lastBytes;
                             if (timeSpan.Seconds != 0)
                             {
                                 _downloadSpeed = bytesChange / timeSpan.Seconds;
-                                lastBytes = completedSize;
+                                lastBytes = _fileSizeDownloaded;
                                 lastUpdate = now;
                             }
                         }
                     }
                     smRespStream.Close();
                 }
-
 
                 saveFileStream.Close();
                 formCaller.Invoke(new Action(() => { DownloadCompleted(); }));
@@ -651,9 +659,9 @@ namespace NPS
 
             lvi.SubItems[1].Text = speed;
 
-            if (totalSize > 0)
+            if (_fileSizeTotal > 0)
             {
-                float prgs = (float)completedSize / totalSize;
+                float prgs = (float)_fileSizeDownloaded / _fileSizeTotal;
                 progressValue = (int)(prgs * 100.0F);
                 if (progressValue > 100)
                 {
@@ -671,7 +679,7 @@ namespace NPS
 
             progress.Value = progressValue;
 
-            lvi.SubItems[2].Text = $"{Utils.GetSizeShort(completedSize)} / {Utils.GetSizeShort(totalSize)}";
+            lvi.SubItems[2].Text = $"{Utils.GetSizeShort(_fileSizeDownloaded)} / {Utils.GetSizeShort(_fileSizeTotal)}";
         }
     }
 
